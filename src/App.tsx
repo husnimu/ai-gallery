@@ -5,6 +5,7 @@ import Lightbox from './components/Lightbox';
 import CategoryFilter from './components/CategoryFilter';
 import UploadModal, { UploadedFile } from './components/UploadModal';
 import { photos as defaultPhotos, categories, Photo } from './data/photos';
+import { downloadMultiplePhotos } from './utils/download';
 
 function App() {
   const [activeCategory, setActiveCategory] = useState('Semua');
@@ -70,6 +71,11 @@ function App() {
     }
   }, [selectedPhoto]);
 
+  const handleDownloadAll = useCallback(async () => {
+    if (filteredPhotos.length === 0) return;
+    await downloadMultiplePhotos(filteredPhotos);
+  }, [filteredPhotos]);
+
   const isUploadedPhoto = useCallback((photo: Photo) => {
     return uploadedPhotos.some((p) => p.id === photo.id);
   }, [uploadedPhotos]);
@@ -86,37 +92,53 @@ function App() {
         {/* Hero section */}
         <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">
-            Jelajahi Koleksi Foto
+            Galeri Foto Anda
           </h2>
           <p className="text-gray-500 max-w-2xl mx-auto">
-            Temukan keindahan dalam setiap gambar. Koleksi foto dari berbagai kategori
-            yang akan menginspirasi Anda.
+            {allPhotos.length === 0 
+              ? 'Mulai dengan mengunggah foto pertama Anda dan buat koleksi yang menginspirasi.'
+              : 'Kelola, lihat, dan unduh koleksi foto Anda dengan mudah.'}
           </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="mb-8">
-          <CategoryFilter
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-          />
-        </div>
+        {/* Category Filter - hanya tampilkan jika ada foto */}
+        {allPhotos.length > 0 && (
+          <div className="mb-8">
+            <CategoryFilter
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+            />
+          </div>
+        )}
 
-        {/* Photo count & info */}
-        <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
-          <p className="text-sm text-gray-500">
-            Menampilkan <span className="font-semibold text-gray-700">{filteredPhotos.length}</span> foto
-            {activeCategory !== 'Semua' && (
-              <span> dalam kategori <span className="font-semibold text-purple-600">{activeCategory}</span></span>
-            )}
-          </p>
-          {uploadedPhotos.length > 0 && (
-            <p className="text-xs text-purple-500 bg-purple-50 px-3 py-1 rounded-full">
-              ✨ {uploadedPhotos.length} foto diupload oleh Anda
+        {/* Photo count & actions */}
+        {filteredPhotos.length > 0 && (
+          <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
+            <p className="text-sm text-gray-500">
+              Menampilkan <span className="font-semibold text-gray-700">{filteredPhotos.length}</span> foto
+              {activeCategory !== 'Semua' && (
+                <span> dalam kategori <span className="font-semibold text-purple-600">{activeCategory}</span></span>
+              )}
             </p>
-          )}
-        </div>
+            <div className="flex items-center gap-2">
+              {uploadedPhotos.length > 0 && (
+                <p className="text-xs text-purple-500 bg-purple-50 px-3 py-1 rounded-full">
+                  ✨ {uploadedPhotos.length} foto diupload
+                </p>
+              )}
+              <button
+                onClick={handleDownloadAll}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-all shadow-md hover:shadow-lg"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Download Semua</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Gallery */}
         <Gallery

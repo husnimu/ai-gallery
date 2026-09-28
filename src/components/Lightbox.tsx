@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Photo } from '../data/photos';
+import { downloadPhoto } from '../utils/download';
 
 interface LightboxProps {
   photo: Photo | null;
@@ -15,12 +16,21 @@ const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onD
       if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowRight') onNext();
       if (e.key === 'ArrowLeft') onPrev();
+      if (e.key === 'd' && e.ctrlKey && photo) {
+        e.preventDefault();
+        downloadPhoto(photo);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, onNext, onPrev]);
+  }, [onClose, onNext, onPrev, photo]);
 
   if (!photo) return null;
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await downloadPhoto(photo);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm" onClick={onClose}>
@@ -34,24 +44,37 @@ const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onD
         </svg>
       </button>
 
-      {/* Delete button */}
-      {onDelete && (
+      {/* Action buttons - top right */}
+      <div className="absolute top-4 right-16 flex items-center gap-2 z-50">
+        {/* Download button */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (confirm('Hapus foto ini dari galeri?')) {
-              onDelete();
-              onClose();
-            }
-          }}
-          className="absolute top-4 right-16 text-red-400 hover:text-red-300 transition-colors z-50"
-          title="Hapus foto"
+          onClick={handleDownload}
+          className="text-blue-400 hover:text-blue-300 transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2"
+          title="Download foto (Ctrl+D)"
         >
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
         </button>
-      )}
+        {/* Delete button */}
+        {onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (confirm('Hapus foto ini dari galeri?')) {
+                onDelete();
+                onClose();
+              }
+            }}
+            className="text-red-400 hover:text-red-300 transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2"
+            title="Hapus foto"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        )}
+      </div>
 
       {/* Previous button */}
       <button
