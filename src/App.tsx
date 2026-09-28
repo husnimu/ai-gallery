@@ -12,7 +12,7 @@ import { useActivityLog } from './hooks/useActivityLog';
 
 function App() {
   const { filterCategories, categories, addCategory } = useCategories();
-  const { logs, logUpload, logDownload, logDelete, clearLogs } = useActivityLog();
+  const { logs, logUpload, logDownload, logDelete, removeLog, clearLogs } = useActivityLog();
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
@@ -228,6 +228,7 @@ function App() {
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         logs={logs}
+        onRemoveLog={removeLog}
         onClearLogs={clearLogs}
       />
     </div>

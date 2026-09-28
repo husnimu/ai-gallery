@@ -69,6 +69,10 @@ export const useActivityLog = () => {
     addLog('delete', photoTitle);
   }, [addLog]);
 
+  const removeLog = useCallback((logId: string) => {
+    setLogs((prev) => prev.filter((log) => log.id !== logId));
+  }, []);
+
   const clearLogs = useCallback(() => {
     setLogs([]);
   }, []);
@@ -82,6 +86,7 @@ export const useActivityLog = () => {
     logUpload,
     logDownload,
     logDelete,
+    removeLog,
     clearLogs,
     getLogsByType,
   };

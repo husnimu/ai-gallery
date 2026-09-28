@@ -91,9 +91,11 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
   - Kategori (untuk upload)
   - Jumlah foto (untuk batch operations)
   - Timestamp dengan format relatif ("Baru saja", "5 menit lalu", "2 jam lalu", dll)
+- **Hapus Log Individual**: Tombol hapus (X) muncul saat hover pada setiap log entry untuk menghapus log tertentu saja.
+- **Animasi Hapus**: Efek animasi smooth saat menghapus log individual (fade out + slide).
 - **Persistensi localStorage**: Riwayat tersimpan dan tetap ada saat halaman di-refresh.
 - **Batas Log**: Maksimal 100 log terbaru untuk performa optimal.
-- **Hapus Riwayat**: Tombol "Hapus Semua" untuk membersihkan riwayat.
+- **Hapus Semua Riwayat**: Tombol "Hapus Semua" untuk membersihkan seluruh riwayat sekaligus.
 
 ---
 
@@ -109,7 +111,7 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
 - **Responsive Design**: Mobile-first approach dengan breakpoint Tailwind
 - **Component-based Architecture**: Komponen modular dan reusable
 - **State Management**: React hooks (useState, useMemo, useCallback)
-- **Custom Hooks**: useCategories, useActivityLog untuk logic reusable
+- **Custom Hooks**: useCategories (manajemen kategori), useActivityLog (logging aktivitas dengan fitur hapus individual & hapus semua)
 - **Image Optimization**: Lazy loading untuk performa optimal
 - **URL Object Management**: Proper cleanup untuk object URLs dari file upload
 - **Keyboard Navigation**: Full keyboard support untuk aksesibilitas
@@ -231,7 +233,8 @@ galeri-foto/
 1. Klik ikon jam di header (dengan badge jumlah aktivitas)
 2. Filter berdasarkan tipe: Semua, Upload, Download, atau Delete
 3. Lihat detail setiap aktivitas dengan timestamp
-4. Klik "Hapus Semua" untuk membersihkan riwayat
+4. **Hapus Log Individual**: Hover pada log tertentu → klik tombol X untuk menghapus log tersebut
+5. **Hapus Semua**: Klik "Hapus Semua" di pojok kanan atas untuk membersihkan seluruh riwayat
 
 ---
 
@@ -311,6 +314,8 @@ Ide pengembangan untuk versi selanjutnya:
 - [ ] Export riwayat aktivitas ke CSV/JSON
 - [ ] Notifikasi real-time untuk aktivitas
 - [ ] Statistik penggunaan (jumlah upload/download/delete)
+- [ ] Undo/Redo untuk operasi hapus
+- [ ] Search dalam riwayat aktivitas
 
 ---
 
