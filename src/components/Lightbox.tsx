@@ -6,9 +6,10 @@ interface LightboxProps {
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
+  onDelete?: () => void;
 }
 
-const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev }) => {
+const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onDelete }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -32,6 +33,25 @@ const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev }) =
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
+
+      {/* Delete button */}
+      {onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (confirm('Hapus foto ini dari galeri?')) {
+              onDelete();
+              onClose();
+            }
+          }}
+          className="absolute top-4 right-16 text-red-400 hover:text-red-300 transition-colors z-50"
+          title="Hapus foto"
+        >
+          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      )}
 
       {/* Previous button */}
       <button

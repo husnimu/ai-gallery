@@ -3,15 +3,23 @@ import Header from './components/Header';
 import Gallery from './components/Gallery';
 import Lightbox from './components/Lightbox';
 import CategoryFilter from './components/CategoryFilter';
-import { photos, categories, Photo } from './data/photos';
+import UploadModal, { UploadedFile } from './components/UploadModal';
+import { photos as defaultPhotos, categories, Photo } from './data/photos';
 
 function App() {
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [uploadedPhotos, setUploadedPhotos] = useState<Photo[]>([]);
+
+  // Gabungkan foto default dengan foto yang diupload
+  const allPhotos = useMemo(() => {
+    return [...uploadedPhotos, ...defaultPhotos];
+  }, [uploadedPhotos]);
 
   const filteredPhotos = useMemo(() => {
-    return photos.filter((photo) => {
+    return allPhotos.filter((photo) => {
       const matchesCategory = activeCategory === 'Semua' || photo.category === activeCategory;
       const matchesSearch =
         searchQuery === '' ||
@@ -20,7 +28,7 @@ function App() {
         photo.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, allPhotos]);
 
   const handlePhotoClick = useCallback((photo: Photo) => {
     setSelectedPhoto(photo);
@@ -44,9 +52,35 @@ function App() {
     setSelectedPhoto(filteredPhotos[prevIndex]);
   }, [selectedPhoto, filteredPhotos]);
 
+  const handleUpload = useCallback((files: UploadedFile[]) => {
+    const newPhotos: Photo[] = files.map((file) => ({
+      id: file.id,
+      src: file.src,
+      title: file.title,
+      category: file.category,
+      description: file.description,
+    }));
+    setUploadedPhotos((prev) => [...newPhotos, ...prev]);
+  }, []);
+
+  const handleDeletePhoto = useCallback((photoId: number) => {
+    setUploadedPhotos((prev) => prev.filter((p) => p.id !== photoId));
+    if (selectedPhoto?.id === photoId) {
+      setSelectedPhoto(null);
+    }
+  }, [selectedPhoto]);
+
+  const isUploadedPhoto = useCallback((photo: Photo) => {
+    return uploadedPhotos.some((p) => p.id === photo.id);
+  }, [uploadedPhotos]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onSearch={setSearchQuery} />
+      <Header
+        onSearch={setSearchQuery}
+        onUploadClick={() => setIsUploadOpen(true)}
+        uploadedCount={uploadedPhotos.length}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero section */}
@@ -69,18 +103,28 @@ function App() {
           />
         </div>
 
-        {/* Photo count */}
-        <div className="mb-6 flex items-center justify-between">
+        {/* Photo count & info */}
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
           <p className="text-sm text-gray-500">
             Menampilkan <span className="font-semibold text-gray-700">{filteredPhotos.length}</span> foto
             {activeCategory !== 'Semua' && (
               <span> dalam kategori <span className="font-semibold text-purple-600">{activeCategory}</span></span>
             )}
           </p>
+          {uploadedPhotos.length > 0 && (
+            <p className="text-xs text-purple-500 bg-purple-50 px-3 py-1 rounded-full">
+              ✨ {uploadedPhotos.length} foto diupload oleh Anda
+            </p>
+          )}
         </div>
 
         {/* Gallery */}
-        <Gallery photos={filteredPhotos} onPhotoClick={handlePhotoClick} />
+        <Gallery
+          photos={filteredPhotos}
+          onPhotoClick={handlePhotoClick}
+          onDeletePhoto={handleDeletePhoto}
+          isUploadedPhoto={isUploadedPhoto}
+        />
       </main>
 
       {/* Footer */}
@@ -108,6 +152,14 @@ function App() {
         onClose={handleCloseLightbox}
         onNext={handleNext}
         onPrev={handlePrev}
+        onDelete={selectedPhoto && isUploadedPhoto(selectedPhoto) ? () => handleDeletePhoto(selectedPhoto.id) : undefined}
+      />
+
+      {/* Upload Modal */}
+      <UploadModal
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
+        onUpload={handleUpload}
       />
     </div>
   );
