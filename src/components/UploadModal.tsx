@@ -4,6 +4,8 @@ interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpload: (files: UploadedFile[]) => void;
+  categories: string[];
+  onAddCategory: (category: string) => boolean;
 }
 
 export interface UploadedFile {
@@ -15,15 +17,26 @@ export interface UploadedFile {
   file: File;
 }
 
-const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpload }) => {
+const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpload, categories, onAddCategory }) => {
   const [dragActive, setDragActive] = useState(false);
   const [previews, setPreviews] = useState<{ file: File; src: string }[]>([]);
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Alam');
+  const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [categoryError, setCategoryError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const newCategoryInputRef = useRef<HTMLInputElement>(null);
 
-  const categories = ['Alam', 'Arsitektur', 'Hewan', 'Makanan', 'Perjalanan'];
+  const ADD_NEW_OPTION = '__ADD_NEW__';
+
+  // Set default category saat pertama kali dibuka
+  React.useEffect(() => {
+    if (isOpen && categories.length > 0 && !category) {
+      setCategory(categories[0]);
+    }
+  }, [isOpen, categories, category]);
 
   const handleFiles = useCallback((files: FileList | File[]) => {
     const fileArray = Array.from(files).filter((file) =>
@@ -72,8 +85,63 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpload }) 
     });
   };
 
+  const handleCategoryChange = (value: string) => {
+    if (value === ADD_NEW_OPTION) {
+      setShowNewCategoryInput(true);
+      setCategory('');
+      setCategoryError('');
+      // Focus ke input setelah render
+      setTimeout(() => {
+        newCategoryInputRef.current?.focus();
+      }, 100);
+    } else {
+      setCategory(value);
+      setCategoryError('');
+    }
+  };
+
+  const handleAddNewCategory = () => {
+    const trimmed = newCategoryName.trim();
+    if (!trimmed) {
+      setCategoryError('Nama kategori tidak boleh kosong');
+      return;
+    }
+    
+    const success = onAddCategory(trimmed);
+    if (success) {
+      setCategory(trimmed);
+      setNewCategoryName('');
+      setShowNewCategoryInput(false);
+      setCategoryError('');
+    } else {
+      setCategoryError('Kategori sudah ada');
+    }
+  };
+
+  const handleCancelNewCategory = () => {
+    setShowNewCategoryInput(false);
+    setNewCategoryName('');
+    setCategoryError('');
+    if (categories.length > 0) {
+      setCategory(categories[0]);
+    }
+  };
+
+  const handleNewCategoryKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddNewCategory();
+    } else if (e.key === 'Escape') {
+      handleCancelNewCategory();
+    }
+  };
+
   const handleSubmit = () => {
     if (previews.length === 0) return;
+    if (!category) {
+      setCategoryError('Pilih atau buat kategori terlebih dahulu');
+      return;
+    }
 
     const uploadedFiles: UploadedFile[] = previews.map((preview, index) => ({
       id: Date.now() + index,
@@ -92,8 +160,11 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpload }) 
     previews.forEach((p) => URL.revokeObjectURL(p.src));
     setPreviews([]);
     setTitle('');
-    setCategory('Alam');
+    setCategory(categories.length > 0 ? categories[0] : '');
     setDescription('');
+    setShowNewCategoryInput(false);
+    setNewCategoryName('');
+    setCategoryError('');
     onClose();
   };
 
@@ -209,19 +280,69 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpload }) 
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Kategori
+                  Kategori / Tag
                 </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                
+                {!showNewCategoryInput ? (
+                  <select
+                    value={category}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                  >
+                    <option value="" disabled>Pilih kategori...</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                    <option value={ADD_NEW_OPTION} className="text-purple-600 font-medium">
+                      + Tambah Kategori Baru...
                     </option>
-                  ))}
-                </select>
+                  </select>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        ref={newCategoryInputRef}
+                        type="text"
+                        value={newCategoryName}
+                        onChange={(e) => {
+                          setNewCategoryName(e.target.value);
+                          setCategoryError('');
+                        }}
+                        onKeyDown={handleNewCategoryKeyDown}
+                        placeholder="Nama kategori baru..."
+                        className="flex-1 px-4 py-2.5 border border-purple-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        maxLength={30}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddNewCategory}
+                        className="px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl text-sm font-medium transition-colors"
+                      >
+                        Tambah
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelNewCategory}
+                        className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition-colors"
+                      >
+                        Batal
+                      </button>
+                    </div>
+                    {categoryError && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {categoryError}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Tekan Enter untuk menambah, Esc untuk batal
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -250,7 +371,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpload }) 
           </button>
           <button
             onClick={handleSubmit}
-            disabled={previews.length === 0}
+            disabled={previews.length === 0 || !category}
             className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-purple-500/25"
           >
             <span className="flex items-center gap-2">

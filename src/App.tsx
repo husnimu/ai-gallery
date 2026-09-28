@@ -4,10 +4,12 @@ import Gallery from './components/Gallery';
 import Lightbox from './components/Lightbox';
 import CategoryFilter from './components/CategoryFilter';
 import UploadModal, { UploadedFile } from './components/UploadModal';
-import { photos as defaultPhotos, categories, Photo } from './data/photos';
+import { photos as defaultPhotos, Photo } from './data/photos';
 import { downloadMultiplePhotos } from './utils/download';
+import { useCategories } from './hooks/useCategories';
 
 function App() {
+  const { filterCategories, categories, addCategory } = useCategories();
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
@@ -105,7 +107,7 @@ function App() {
         {allPhotos.length > 0 && (
           <div className="mb-8">
             <CategoryFilter
-              categories={categories}
+              categories={filterCategories}
               activeCategory={activeCategory}
               onCategoryChange={setActiveCategory}
             />
@@ -182,6 +184,8 @@ function App() {
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
         onUpload={handleUpload}
+        categories={categories}
+        onAddCategory={addCategory}
       />
     </div>
   );
