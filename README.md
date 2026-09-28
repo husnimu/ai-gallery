@@ -92,10 +92,13 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
   - Jumlah foto (untuk batch operations)
   - Timestamp dengan format relatif ("Baru saja", "5 menit lalu", "2 jam lalu", dll)
 - **Hapus Log Individual**: Tombol hapus (X) muncul saat hover pada setiap log entry untuk menghapus log tertentu saja.
-- **Animasi Hapus**: Efek animasi smooth saat menghapus log individual (fade out + slide).
+- **Animasi Hapus Individual**: Efek animasi smooth saat menghapus log individual (fade out + scale + slide).
+- **Hapus Semua Riwayat**: Tombol "Hapus Semua" yang prominent dengan ikon tempat sampah di header modal.
+- **Dialog Konfirmasi**: Dialog konfirmasi modern dengan ikon peringatan, informasi jumlah log yang akan dihapus, dan tombol Batal/Hapus.
+- **Animasi Loading**: Overlay loading dengan spinner saat proses hapus semua berlangsung.
+- **Toast Notification**: Notifikasi sukses yang muncul setelah berhasil menghapus semua riwayat (auto-dismiss setelah 3 detik).
 - **Persistensi localStorage**: Riwayat tersimpan dan tetap ada saat halaman di-refresh.
 - **Batas Log**: Maksimal 100 log terbaru untuk performa optimal.
-- **Hapus Semua Riwayat**: Tombol "Hapus Semua" untuk membersihkan seluruh riwayat sekaligus.
 
 ---
 
@@ -111,7 +114,9 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
 - **Responsive Design**: Mobile-first approach dengan breakpoint Tailwind
 - **Component-based Architecture**: Komponen modular dan reusable
 - **State Management**: React hooks (useState, useMemo, useCallback)
-- **Custom Hooks**: useCategories (manajemen kategori), useActivityLog (logging aktivitas dengan fitur hapus individual & hapus semua)
+- **Custom Hooks**: 
+  - `useCategories`: Manajemen kategori dinamis dengan persistensi localStorage
+  - `useActivityLog`: Logging aktivitas dengan fitur hapus individual (`removeLog`), hapus semua (`clearLogs`), dan notifikasi toast
 - **Image Optimization**: Lazy loading untuk performa optimal
 - **URL Object Management**: Proper cleanup untuk object URLs dari file upload
 - **Keyboard Navigation**: Full keyboard support untuk aksesibilitas
@@ -234,7 +239,12 @@ galeri-foto/
 2. Filter berdasarkan tipe: Semua, Upload, Download, atau Delete
 3. Lihat detail setiap aktivitas dengan timestamp
 4. **Hapus Log Individual**: Hover pada log tertentu → klik tombol X untuk menghapus log tersebut
-5. **Hapus Semua**: Klik "Hapus Semua" di pojok kanan atas untuk membersihkan seluruh riwayat
+5. **Hapus Semua Riwayat**:
+   - Klik tombol merah "Hapus Semua" di pojok kanan atas modal
+   - Dialog konfirmasi akan muncul dengan informasi jumlah log yang akan dihapus
+   - Klik "Ya, Hapus Semua" untuk mengkonfirmasi atau "Batal" untuk membatalkan
+   - Animasi loading akan ditampilkan saat proses penghapusan
+   - Toast notification muncul setelah berhasil menghapus semua riwayat
 
 ---
 
