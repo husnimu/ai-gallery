@@ -8,9 +8,10 @@ interface LightboxProps {
   onNext: () => void;
   onPrev: () => void;
   onDelete?: () => void;
+  onDownload?: () => void;
 }
 
-const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onDelete }) => {
+const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onDelete, onDownload }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -18,18 +19,26 @@ const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onD
       if (e.key === 'ArrowLeft') onPrev();
       if (e.key === 'd' && e.ctrlKey && photo) {
         e.preventDefault();
-        downloadPhoto(photo);
+        if (onDownload) {
+          onDownload();
+        } else {
+          downloadPhoto(photo);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, onNext, onPrev, photo]);
+  }, [onClose, onNext, onPrev, photo, onDownload]);
 
   if (!photo) return null;
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await downloadPhoto(photo);
+    if (onDownload) {
+      await onDownload();
+    } else {
+      await downloadPhoto(photo);
+    }
   };
 
   return (

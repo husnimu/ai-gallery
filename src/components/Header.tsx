@@ -3,10 +3,12 @@ import React from 'react';
 interface HeaderProps {
   onSearch: (query: string) => void;
   onUploadClick: () => void;
+  onHistoryClick: () => void;
   uploadedCount: number;
+  activityCount: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSearch, onUploadClick, uploadedCount }) => {
+const Header: React.FC<HeaderProps> = ({ onSearch, onUploadClick, onHistoryClick, uploadedCount, activityCount }) => {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,6 +35,22 @@ const Header: React.FC<HeaderProps> = ({ onSearch, onUploadClick, uploadedCount 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
+
+            {/* History Button */}
+            <button
+              onClick={onHistoryClick}
+              className="relative flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all"
+              title="Riwayat Aktivitas"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {activityCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                  {activityCount > 99 ? '99+' : activityCount}
+                </span>
+              )}
+            </button>
 
             {/* Upload Button */}
             <button

@@ -4,16 +4,20 @@ import Gallery from './components/Gallery';
 import Lightbox from './components/Lightbox';
 import CategoryFilter from './components/CategoryFilter';
 import UploadModal, { UploadedFile } from './components/UploadModal';
+import ActivityLogModal from './components/ActivityLogModal';
 import { photos as defaultPhotos, Photo } from './data/photos';
-import { downloadMultiplePhotos } from './utils/download';
+import { downloadMultiplePhotos, downloadPhoto } from './utils/download';
 import { useCategories } from './hooks/useCategories';
+import { useActivityLog } from './hooks/useActivityLog';
 
 function App() {
   const { filterCategories, categories, addCategory } = useCategories();
+  const { logs, logUpload, logDownload, logDelete, clearLogs } = useActivityLog();
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<Photo[]>([]);
 
   // Gabungkan foto default dengan foto yang diupload
@@ -64,19 +68,46 @@ function App() {
       description: file.description,
     }));
     setUploadedPhotos((prev) => [...newPhotos, ...prev]);
-  }, []);
+    
+    // Log activity
+    if (files.length === 1) {
+      logUpload(files[0].title, files[0].category);
+    } else {
+      logUpload(`${files.length} foto`, files[0].category, files.length);
+    }
+  }, [logUpload]);
 
   const handleDeletePhoto = useCallback((photoId: number) => {
+    const photo = uploadedPhotos.find(p => p.id === photoId);
     setUploadedPhotos((prev) => prev.filter((p) => p.id !== photoId));
     if (selectedPhoto?.id === photoId) {
       setSelectedPhoto(null);
     }
-  }, [selectedPhoto]);
+    
+    // Log activity
+    if (photo) {
+      logDelete(photo.title);
+    }
+  }, [selectedPhoto, uploadedPhotos, logDelete]);
+
+  const handleDownloadPhoto = useCallback(async (photo: Photo) => {
+    await downloadPhoto(photo);
+    
+    // Log activity
+    logDownload(photo.title);
+  }, [logDownload]);
 
   const handleDownloadAll = useCallback(async () => {
     if (filteredPhotos.length === 0) return;
     await downloadMultiplePhotos(filteredPhotos);
-  }, [filteredPhotos]);
+    
+    // Log activity
+    if (filteredPhotos.length === 1) {
+      logDownload(filteredPhotos[0].title);
+    } else {
+      logDownload(`${filteredPhotos.length} foto`, undefined, filteredPhotos.length);
+    }
+  }, [filteredPhotos, logDownload]);
 
   const isUploadedPhoto = useCallback((photo: Photo) => {
     return uploadedPhotos.some((p) => p.id === photo.id);
@@ -87,7 +118,9 @@ function App() {
       <Header
         onSearch={setSearchQuery}
         onUploadClick={() => setIsUploadOpen(true)}
+        onHistoryClick={() => setIsHistoryOpen(true)}
         uploadedCount={uploadedPhotos.length}
+        activityCount={logs.length}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -147,6 +180,7 @@ function App() {
           photos={filteredPhotos}
           onPhotoClick={handlePhotoClick}
           onDeletePhoto={handleDeletePhoto}
+          onDownloadPhoto={handleDownloadPhoto}
           isUploadedPhoto={isUploadedPhoto}
         />
       </main>
@@ -177,6 +211,7 @@ function App() {
         onNext={handleNext}
         onPrev={handlePrev}
         onDelete={selectedPhoto && isUploadedPhoto(selectedPhoto) ? () => handleDeletePhoto(selectedPhoto.id) : undefined}
+        onDownload={() => selectedPhoto && handleDownloadPhoto(selectedPhoto)}
       />
 
       {/* Upload Modal */}
@@ -186,6 +221,14 @@ function App() {
         onUpload={handleUpload}
         categories={categories}
         onAddCategory={addCategory}
+      />
+
+      {/* Activity Log Modal */}
+      <ActivityLogModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        logs={logs}
+        onClearLogs={clearLogs}
       />
     </div>
   );

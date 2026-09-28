@@ -2,7 +2,7 @@
 
 > ⚡ **Dikembangkan dengan metode *Vibe Coding***: Proyek ini dirancang dan dibangun secara interaktif dan ekspresif berkolaborasi dengan AI, memadukan estetika visual modern dengan fungsionalitas galeri foto yang intuitif dan responsif.
 
-Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur upload drag & drop, filter kategori dinamis, lightbox interaktif dengan navigasi keyboard, pencarian real-time, serta kemampuan manajemen foto yang lengkap.
+Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur upload drag & drop, filter kategori dinamis, lightbox interaktif dengan navigasi keyboard, pencarian real-time, riwayat aktivitas lengkap, serta kemampuan manajemen foto yang lengkap.
 
 ---
 
@@ -17,7 +17,7 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
 - **Hover Effects Interaktif**: Efek zoom halus dan overlay informasi saat hover pada foto.
 - **Smooth Animations**: Transisi halus untuk semua interaksi pengguna dengan CSS transitions.
 - **Custom Scrollbar**: Scrollbar custom dengan warna tema yang konsisten.
-- **Sticky Header**: Header tetap di atas saat scroll untuk akses cepat ke fitur pencarian dan upload.
+- **Sticky Header**: Header tetap di atas saat scroll untuk akses cepat ke fitur pencarian, riwayat, dan upload.
 
 ### 2. Sistem Upload Foto Canggih
 - **Drag & Drop Interface**: Area drop zone intuitif dengan visual feedback saat drag aktif.
@@ -26,19 +26,21 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
 - **Form Metadata Lengkap**:
   - Judul foto (auto-generate dari nama file jika kosong)
   - Pilihan kategori (Alam, Arsitektur, Hewan, Makanan, Perjalanan)
+  - **Tambah Kategori Baru**: Buat kategori custom langsung dari modal upload
   - Deskripsi opsional
 - **File Validation**: Filter otomatis untuk file gambar saja (PNG, JPG, WEBP).
 - **Upload Badge**: Foto yang diupload ditandai dengan badge ungu "Upload" di pojok kiri atas.
 - **Counter Badge**: Indikator jumlah foto yang telah diupload di tombol upload.
 
 ### 3. Filter & Pencarian Dinamis
-- **Filter Kategori**: 6 kategori foto dengan tombol filter interaktif:
+- **Filter Kategori**: Kategori foto dengan tombol filter interaktif:
   - 🌿 Alam
   - 🏛️ Arsitektur
   - 🐾 Hewan
   - 🍽️ Makanan
   - ✈️ Perjalanan
   - 📸 Semua (tampilkan semua)
+  - **+ Kategori Custom** (ditambahkan oleh pengguna)
 - **Pencarian Real-time**: Input pencarian yang memfilter foto berdasarkan:
   - Judul foto
   - Kategori
@@ -52,24 +54,46 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
   - `←` (Arrow Left): Foto sebelumnya
   - `→` (Arrow Right): Foto berikutnya
   - `Esc`: Tutup lightbox
+  - `Ctrl+D`: Download foto
 - **Navigasi Tombol**: Tombol previous/next dengan visual feedback.
 - **Informasi Foto**: Menampilkan judul, deskripsi, dan kategori di bawah foto.
+- **Download dari Lightbox**: Tombol download tersedia untuk semua foto.
 - **Delete dari Lightbox**: Tombol hapus tersedia untuk foto yang diupload.
 - **Click Outside to Close**: Klik area di luar foto untuk menutup lightbox.
 
-### 5. Manajemen Foto
+### 5. Sistem Download Foto
+- **Download Individual**: Tombol download di setiap foto (muncul saat hover).
+- **Download dari Lightbox**: Download langsung dari mode lightbox.
+- **Download Semua**: Tombol "Download Semua" untuk mengunduh seluruh foto sekaligus.
+- **Keyboard Shortcut**: `Ctrl+D` saat di lightbox untuk download cepat.
+- **Batch Download**: Download multiple photos dengan delay otomatis untuk menghindari pemblokiran browser.
+
+### 6. Manajemen Foto
 - **Hapus Foto Upload**: Tombol hapus (ikon tempat sampah) muncul saat hover pada foto yang diupload.
 - **Konfirmasi Hapus**: Dialog konfirmasi sebelum menghapus foto untuk mencegah aksi tidak sengaja.
 - **Hapus dari Lightbox**: Kemampuan menghapus foto langsung dari mode lightbox.
 - **Pemisahan Foto**: Foto default dan foto upload dikelola secara terpisah.
 
-### 6. 18 Foto Koleksi Default
-Koleksi foto default dari berbagai kategori menggunakan Picsum Photos:
-- **Alam** (4 foto): Pegunungan, air terjun, danau, hutan bambu
-- **Arsitektur** (4 foto): Gedung modern, jembatan klasik, kuil kuno, menara tinggi
-- **Hewan** (4 foto): Kucing, burung, anjing, kupu-kupu
-- **Makanan** (3 foto): Hidangan lezat, dessert, kopi
-- **Perjalanan** (3 foto): Pantai tropis, kota malam, gunung saat senja
+### 7. Kategori/Tag Dinamis
+- **Tambah Kategori Baru**: Buat kategori custom langsung dari modal upload.
+- **Persistensi localStorage**: Kategori baru tersimpan dan tetap ada saat halaman di-refresh.
+- **Validasi Duplikasi**: Mencegah kategori dengan nama yang sama (case-insensitive).
+- **Filter Otomatis**: Filter bar otomatis terupdate saat kategori baru ditambahkan.
+- **Keyboard Shortcuts**: Enter untuk menambah kategori, Escape untuk batal.
+
+### 8. Riwayat Aktivitas (Activity Log)
+- **Logging Otomatis**: Setiap aktivitas upload, download, dan delete dicatat secara otomatis.
+- **Tombol Riwayat**: Ikon jam di header dengan badge jumlah aktivitas.
+- **Filter Berdasarkan Tipe**: Filter riwayat berdasarkan Upload, Download, atau Delete.
+- **Informasi Detail**: Setiap log menampilkan:
+  - Tipe aktivitas (upload/download/delete)
+  - Nama foto yang dioperasikan
+  - Kategori (untuk upload)
+  - Jumlah foto (untuk batch operations)
+  - Timestamp dengan format relatif ("Baru saja", "5 menit lalu", "2 jam lalu", dll)
+- **Persistensi localStorage**: Riwayat tersimpan dan tetap ada saat halaman di-refresh.
+- **Batas Log**: Maksimal 100 log terbaru untuk performa optimal.
+- **Hapus Riwayat**: Tombol "Hapus Semua" untuk membersihkan riwayat.
 
 ---
 
@@ -85,9 +109,11 @@ Koleksi foto default dari berbagai kategori menggunakan Picsum Photos:
 - **Responsive Design**: Mobile-first approach dengan breakpoint Tailwind
 - **Component-based Architecture**: Komponen modular dan reusable
 - **State Management**: React hooks (useState, useMemo, useCallback)
+- **Custom Hooks**: useCategories, useActivityLog untuk logic reusable
 - **Image Optimization**: Lazy loading untuk performa optimal
 - **URL Object Management**: Proper cleanup untuk object URLs dari file upload
 - **Keyboard Navigation**: Full keyboard support untuk aksesibilitas
+- **LocalStorage Persistence**: Data kategori dan riwayat aktivitas tersimpan persisten
 
 ---
 
@@ -142,11 +168,17 @@ galeri-foto/
 ├── public/                      # Aset statis
 ├── src/
 │   ├── components/
-│   │   ├── Header.tsx          # Header dengan search & tombol upload
-│   │   ├── Gallery.tsx         # Grid gallery dengan hover effects
+│   │   ├── Header.tsx          # Header dengan search, history & tombol upload
+│   │   ├── Gallery.tsx         # Grid gallery dengan hover effects & action buttons
 │   │   ├── CategoryFilter.tsx  # Filter kategori interaktif
-│   │   ├── Lightbox.tsx        # Modal lightbox viewer
-│   │   └── UploadModal.tsx     # Modal upload dengan drag & drop
+│   │   ├── Lightbox.tsx        # Modal lightbox viewer dengan download & delete
+│   │   ├── UploadModal.tsx     # Modal upload dengan drag & drop & tambah kategori
+│   │   └── ActivityLogModal.tsx # Modal riwayat aktivitas dengan filter
+│   ├── hooks/
+│   │   ├── useCategories.ts    # Custom hook untuk manajemen kategori dinamis
+│   │   └── useActivityLog.ts   # Custom hook untuk logging aktivitas
+│   ├── utils/
+│   │   └── download.ts         # Utility functions untuk download foto
 │   ├── data/
 │   │   └── photos.ts           # Data foto default & tipe TypeScript
 │   ├── App.tsx                 # Komponen utama aplikasi
@@ -168,8 +200,12 @@ galeri-foto/
 1. Klik tombol **"Upload"** di header (ikon +)
 2. Drag & drop foto ke area upload, atau klik untuk memilih file
 3. Pilih beberapa foto sekaligus jika diperlukan
-4. Isi metadata: judul, kategori, dan deskripsi
-5. Klik tombol **"Upload"** untuk menambahkan ke galeri
+4. Isi meta judul, kategori, dan deskripsi
+5. **Tambah Kategori Baru** (opsional):
+   - Pilih "+ Tambah Kategori Baru..." dari dropdown
+   - Ketik nama kategori baru
+   - Tekan Enter atau klik "Tambah"
+6. Klik tombol **"Upload"** untuk menambahkan ke galeri
 
 ### Filter & Pencarian
 1. Gunakan tombol kategori untuk memfilter foto berdasarkan kategori
@@ -181,10 +217,21 @@ galeri-foto/
 2. Gunakan tombol panah atau keyboard untuk navigasi
 3. Tekan `Esc` atau klik di luar foto untuk menutup
 
+### Download Foto
+- **Individual**: Hover pada foto → klik tombol download (ikon biru)
+- **Dari Lightbox**: Klik tombol download di pojok kanan atas atau tekan `Ctrl+D`
+- **Semua**: Klik tombol "Download Semua" di atas galeri
+
 ### Menghapus Foto Upload
 1. Hover pada foto yang diupload
 2. Klik tombol hapus (ikon tempat sampah) di pojok kanan bawah
 3. Konfirmasi penghapusan
+
+### Melihat Riwayat Aktivitas
+1. Klik ikon jam di header (dengan badge jumlah aktivitas)
+2. Filter berdasarkan tipe: Semua, Upload, Download, atau Delete
+3. Lihat detail setiap aktivitas dengan timestamp
+4. Klik "Hapus Semua" untuk membersihkan riwayat
 
 ---
 
@@ -195,6 +242,10 @@ galeri-foto/
 - **Background**: Gray 50 (`#f9fafb`)
 - **Text**: Gray 800 (`#1f2937`)
 - **Accent**: Purple gradient untuk CTA buttons
+- **Activity Colors**:
+  - Upload: Green (`#10b981`)
+  - Download: Blue (`#3b82f6`)
+  - Delete: Red (`#ef4444`)
 
 ### Typography
 - **Font Family**: System fonts (sans-serif)
@@ -221,10 +272,10 @@ galeri-foto/
 
 ## 🔧 Customization
 
-### Menambah Kategori Baru
-Edit file `src/data/photos.ts`:
+### Menambah Kategori Default
+Edit file `src/hooks/useCategories.ts`:
 ```typescript
-export const categories = ['Semua', 'Alam', 'Arsitektur', 'Hewan', 'Makanan', 'Perjalanan', 'Kategori Baru'];
+const DEFAULT_CATEGORIES = ['Alam', 'Arsitektur', 'Hewan', 'Makanan', 'Perjalanan', 'Kategori Baru'];
 ```
 
 ### Mengubah Warna Tema
@@ -234,16 +285,10 @@ Edit file `src/index.css` atau gunakan Tailwind classes di komponen:
 className="bg-gradient-to-r from-blue-500 to-cyan-500"
 ```
 
-### Menambah Foto Default
-Tambahkan objek foto baru di `src/data/photos.ts`:
+### Mengubah Batas Log
+Edit file `src/hooks/useActivityLog.ts`:
 ```typescript
-{
-  id: 19,
-  src: 'https://picsum.photos/seed/custom/600/400',
-  title: 'Judul Foto',
-  category: 'Alam',
-  description: 'Deskripsi foto',
-}
+const MAX_LOGS = 100; // Ubah sesuai kebutuhan
 ```
 
 ---
@@ -254,7 +299,7 @@ Ide pengembangan untuk versi selanjutnya:
 - [ ] Integrasi dengan API penyimpanan cloud (AWS S3, Cloudinary)
 - [ ] Fitur tagging dan multiple categories per foto
 - [ ] Slideshow mode dengan auto-play
-- [ ] Download foto individual atau batch
+- [ ] Download foto sebagai ZIP (batch download)
 - [ ] Fitur like/favorite dengan heart animation
 - [ ] Share ke media sosial
 - [ ] EXIF data viewer
@@ -262,8 +307,10 @@ Ide pengembangan untuk versi selanjutnya:
 - [ ] Dark mode toggle
 - [ ] Infinite scroll atau pagination
 - [ ] Sort by date, name, or category
-- [ ] Export galeri sebagai ZIP
 - [ ] Watermark otomatis untuk foto upload
+- [ ] Export riwayat aktivitas ke CSV/JSON
+- [ ] Notifikasi real-time untuk aktivitas
+- [ ] Statistik penggunaan (jumlah upload/download/delete)
 
 ---
 
@@ -271,10 +318,12 @@ Ide pengembangan untuk versi selanjutnya:
 
 Proyek ini mendemonstrasikan:
 - **React Hooks**: useState, useMemo, useCallback untuk state management
+- **Custom Hooks**: useCategories, useActivityLog untuk logic reusable
 - **TypeScript**: Type safety untuk props, state, dan data structures
 - **Component Architecture**: Pemisahan concern dalam komponen modular
 - **Event Handling**: Drag & drop, keyboard events, click events
 - **File API**: FileReader, URL.createObjectURL, blob handling
+- **LocalStorage API**: Persistensi data kategori dan riwayat aktivitas
 - **Responsive Design**: Mobile-first dengan Tailwind breakpoints
 - **Accessibility**: Keyboard navigation, semantic HTML
 - **Performance**: Lazy loading, memoization, cleanup effects

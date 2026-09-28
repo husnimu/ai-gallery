@@ -1,15 +1,15 @@
 import React from 'react';
 import { Photo } from '../data/photos';
-import { downloadPhoto } from '../utils/download';
 
 interface GalleryProps {
   photos: Photo[];
   onPhotoClick: (photo: Photo) => void;
   onDeletePhoto?: (photoId: number) => void;
+  onDownloadPhoto?: (photo: Photo) => void;
   isUploadedPhoto?: (photo: Photo) => boolean;
 }
 
-const Gallery: React.FC<GalleryProps> = ({ photos, onPhotoClick, onDeletePhoto, isUploadedPhoto }) => {
+const Gallery: React.FC<GalleryProps> = ({ photos, onPhotoClick, onDeletePhoto, onDownloadPhoto, isUploadedPhoto }) => {
   if (photos.length === 0) {
     return (
       <div className="text-center py-20">
@@ -32,7 +32,9 @@ const Gallery: React.FC<GalleryProps> = ({ photos, onPhotoClick, onDeletePhoto, 
 
   const handleDownload = async (e: React.MouseEvent, photo: Photo) => {
     e.stopPropagation();
-    await downloadPhoto(photo);
+    if (onDownloadPhoto) {
+      await onDownloadPhoto(photo);
+    }
   };
 
   return (
@@ -80,15 +82,17 @@ const Gallery: React.FC<GalleryProps> = ({ photos, onPhotoClick, onDeletePhoto, 
             {/* Action buttons - download & delete */}
             <div className="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
               {/* Download button */}
-              <button
-                onClick={(e) => handleDownload(e, photo)}
-                className="w-8 h-8 bg-blue-500/90 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
-                title="Download foto"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-              </button>
+              {onDownloadPhoto && (
+                <button
+                  onClick={(e) => handleDownload(e, photo)}
+                  className="w-8 h-8 bg-blue-500/90 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
+                  title="Download foto"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                </button>
+              )}
               {/* Delete button for uploaded photos */}
               {isUploaded && onDeletePhoto && (
                 <button
