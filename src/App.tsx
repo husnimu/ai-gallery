@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import Header from './components/Header';
 import Gallery from './components/Gallery';
 import Lightbox from './components/Lightbox';
@@ -19,6 +19,12 @@ function App() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<Photo[]>([]);
+  
+  // Infinite scroll states
+  const ITEMS_PER_PAGE = 8;
+  const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Gabungkan foto default dengan foto yang diupload
   const allPhotos = useMemo(() => {
@@ -36,6 +42,53 @@ function App() {
       return matchesCategory && matchesSearch;
     });
   }, [activeCategory, searchQuery, allPhotos]);
+
+  // Foto yang ditampilkan (infinite scroll)
+  const displayedPhotos = useMemo(() => {
+    return filteredPhotos.slice(0, displayCount);
+  }, [filteredPhotos, displayCount]);
+
+  const hasMorePhotos = displayCount < filteredPhotos.length;
+
+  // Reset display count saat filter berubah
+  useEffect(() => {
+    setDisplayCount(ITEMS_PER_PAGE);
+  }, [activeCategory, searchQuery]);
+
+  // Load more photos
+  const loadMore = useCallback(() => {
+    if (isLoadingMore || !hasMorePhotos) return;
+    
+    setIsLoadingMore(true);
+    // Simulasi delay loading (bisa dihapus jika tidak perlu)
+    setTimeout(() => {
+      setDisplayCount(prev => prev + ITEMS_PER_PAGE);
+      setIsLoadingMore(false);
+    }, 500);
+  }, [isLoadingMore, hasMorePhotos]);
+
+  // Intersection Observer untuk infinite scroll
+  useEffect(() => {
+    if (!loadMoreRef.current || isLoadingMore || !hasMorePhotos) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          loadMore();
+        }
+      },
+      {
+        rootMargin: '200px',
+      }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [loadMore, isLoadingMore, hasMorePhotos]);
 
   const handlePhotoClick = useCallback((photo: Photo) => {
     setSelectedPhoto(photo);
@@ -151,7 +204,7 @@ function App() {
         {filteredPhotos.length > 0 && (
           <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
             <p className="text-sm text-gray-500">
-              Menampilkan <span className="font-semibold text-gray-700">{filteredPhotos.length}</span> foto
+              Menampilkan <span className="font-semibold text-gray-700">{displayedPhotos.length}</span> dari <span className="font-semibold text-gray-700">{filteredPhotos.length}</span> foto
               {activeCategory !== 'Semua' && (
                 <span> dalam kategori <span className="font-semibold text-purple-600">{activeCategory}</span></span>
               )}
@@ -175,13 +228,17 @@ function App() {
           </div>
         )}
 
-        {/* Gallery */}
+        {/* Gallery dengan Infinite Scroll */}
         <Gallery
-          photos={filteredPhotos}
+          photos={displayedPhotos}
           onPhotoClick={handlePhotoClick}
           onDeletePhoto={handleDeletePhoto}
           onDownloadPhoto={handleDownloadPhoto}
           isUploadedPhoto={isUploadedPhoto}
+          onLoadMore={loadMore}
+          isLoading={isLoadingMore}
+          hasMore={hasMorePhotos}
+          loadMoreRef={loadMoreRef}
         />
       </main>
 

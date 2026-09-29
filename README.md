@@ -16,6 +16,7 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
   - 💻 Desktop: 3-4 kolom
 - **Hover Effects Interaktif**: Efek zoom halus dan overlay informasi saat hover pada foto.
 - **Smooth Animations**: Transisi halus untuk semua interaksi pengguna dengan CSS transitions.
+- **Fade-in Animation**: Animasi fade-in dengan delay bertahap saat foto baru dimuat untuk infinite scroll.
 - **Custom Scrollbar**: Scrollbar custom dengan warna tema yang konsisten.
 - **Sticky Header**: Header tetap di atas saat scroll untuk akses cepat ke fitur pencarian, riwayat, dan upload.
 
@@ -100,6 +101,18 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
 - **Persistensi localStorage**: Riwayat tersimpan dan tetap ada saat halaman di-refresh.
 - **Batas Log**: Maksimal 100 log terbaru untuk performa optimal.
 
+### 9. Infinite Scroll
+- **Lazy Loading**: Foto dimuat secara bertahap saat user scroll ke bawah, meningkatkan performa untuk galeri besar.
+- **Intersection Observer API**: Menggunakan Intersection Observer modern untuk deteksi scroll yang efisien (tanpa scroll event listener).
+- **Batch Loading**: Memuat 8 foto per batch untuk keseimbangan antara performa dan UX.
+- **Loading Indicator**: Spinner animasi dengan teks "Memuat lebih banyak foto..." saat proses loading.
+- **End-of-List Indicator**: Pesan informatif "Semua foto telah ditampilkan" saat semua foto sudah dimuat.
+- **Fade-in Animation**: Animasi fade-in dengan delay bertahap (staggered) untuk foto yang baru dimuat.
+- **Smart Reset**: Display count otomatis reset saat filter atau pencarian berubah.
+- **Counter Dinamis**: Menampilkan "Menampilkan X dari Y foto" untuk tracking progress.
+- **Root Margin**: Trigger load saat 200px dari bottom untuk preload yang smooth.
+- **Performa Optimal**: Hanya merender foto yang terlihat, mengurangi DOM nodes dan meningkatkan kecepatan.
+
 ---
 
 ## 🎨 Teknologi & Stack
@@ -117,6 +130,8 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
 - **Custom Hooks**: 
   - `useCategories`: Manajemen kategori dinamis dengan persistensi localStorage
   - `useActivityLog`: Logging aktivitas dengan fitur hapus individual (`removeLog`), hapus semua (`clearLogs`), dan notifikasi toast
+  - `useInfiniteScroll`: Hook untuk infinite scroll dengan Intersection Observer
+- **Infinite Scroll**: Implementasi lazy loading dengan Intersection Observer API untuk performa optimal
 - **Image Optimization**: Lazy loading untuk performa optimal
 - **URL Object Management**: Proper cleanup untuk object URLs dari file upload
 - **Keyboard Navigation**: Full keyboard support untuk aksesibilitas
@@ -176,21 +191,23 @@ galeri-foto/
 ├── src/
 │   ├── components/
 │   │   ├── Header.tsx          # Header dengan search, history & tombol upload
-│   │   ├── Gallery.tsx         # Grid gallery dengan hover effects & action buttons
+│   │   ├── Gallery.tsx         # Grid gallery dengan infinite scroll & action buttons
 │   │   ├── CategoryFilter.tsx  # Filter kategori interaktif
 │   │   ├── Lightbox.tsx        # Modal lightbox viewer dengan download & delete
 │   │   ├── UploadModal.tsx     # Modal upload dengan drag & drop & tambah kategori
-│   │   └── ActivityLogModal.tsx # Modal riwayat aktivitas dengan filter
+│   │   ├── ActivityLogModal.tsx # Modal riwayat aktivitas dengan filter & hapus
+│   │   └── LoadingIndicator.tsx # Komponen loading indicator untuk infinite scroll
 │   ├── hooks/
 │   │   ├── useCategories.ts    # Custom hook untuk manajemen kategori dinamis
-│   │   └── useActivityLog.ts   # Custom hook untuk logging aktivitas
+│   │   ├── useActivityLog.ts   # Custom hook untuk logging aktivitas
+│   │   └── useInfiniteScroll.ts # Custom hook untuk infinite scroll logic
 │   ├── utils/
 │   │   └── download.ts         # Utility functions untuk download foto
 │   ├── data/
 │   │   └── photos.ts           # Data foto default & tipe TypeScript
-│   ├── App.tsx                 # Komponen utama aplikasi
+│   ├── App.tsx                 # Komponen utama aplikasi dengan infinite scroll
 │   ├── main.tsx                # Entry point React
-│   └── index.css               # Global styles & Tailwind imports
+│   └── index.css               # Global styles, Tailwind imports & custom animations
 ├── index.html                  # HTML template
 ├── package.json                # Dependensi & scripts
 ├── tsconfig.json               # Konfigurasi TypeScript
@@ -245,6 +262,15 @@ galeri-foto/
    - Klik "Ya, Hapus Semua" untuk mengkonfirmasi atau "Batal" untuk membatalkan
    - Animasi loading akan ditampilkan saat proses penghapusan
    - Toast notification muncul setelah berhasil menghapus semua riwayat
+
+### Infinite Scroll (Gulir Tak Terbatas)
+1. Galeri menampilkan **8 foto pertama** saat halaman dimuat
+2. Scroll ke bawah untuk memuat lebih banyak foto secara otomatis
+3. **Loading indicator** (spinner) muncul saat foto sedang dimuat
+4. Foto baru muncul dengan **animasi fade-in** yang smooth
+5. Counter "Menampilkan X dari Y foto" menunjukkan progress
+6. Saat semua foto sudah dimuat, pesan "Semua foto telah ditampilkan" muncul
+7. Filter atau pencarian akan **reset** infinite scroll ke foto pertama
 
 ---
 
@@ -333,15 +359,17 @@ Ide pengembangan untuk versi selanjutnya:
 
 Proyek ini mendemonstrasikan:
 - **React Hooks**: useState, useMemo, useCallback untuk state management
-- **Custom Hooks**: useCategories, useActivityLog untuk logic reusable
+- **Custom Hooks**: useCategories, useActivityLog, useInfiniteScroll untuk logic reusable
 - **TypeScript**: Type safety untuk props, state, dan data structures
 - **Component Architecture**: Pemisahan concern dalam komponen modular
 - **Event Handling**: Drag & drop, keyboard events, click events
 - **File API**: FileReader, URL.createObjectURL, blob handling
 - **LocalStorage API**: Persistensi data kategori dan riwayat aktivitas
+- **Intersection Observer API**: Implementasi infinite scroll yang efisien tanpa scroll event listener
 - **Responsive Design**: Mobile-first dengan Tailwind breakpoints
 - **Accessibility**: Keyboard navigation, semantic HTML
-- **Performance**: Lazy loading, memoization, cleanup effects
+- **Performance**: Lazy loading, memoization, cleanup effects, infinite scroll
+- **CSS Animations**: Custom keyframe animations untuk fade-in, slide-in, dan zoom effects
 
 ---
 

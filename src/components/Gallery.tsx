@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Photo } from '../data/photos';
 
 interface GalleryProps {
@@ -7,9 +7,54 @@ interface GalleryProps {
   onDeletePhoto?: (photoId: number) => void;
   onDownloadPhoto?: (photo: Photo) => void;
   isUploadedPhoto?: (photo: Photo) => boolean;
+  onLoadMore?: () => void;
+  isLoading?: boolean;
+  hasMore?: boolean;
+  loadMoreRef?: React.RefObject<HTMLDivElement>;
 }
 
-const Gallery: React.FC<GalleryProps> = ({ photos, onPhotoClick, onDeletePhoto, onDownloadPhoto, isUploadedPhoto }) => {
+const Gallery: React.FC<GalleryProps> = ({ 
+  photos, 
+  onPhotoClick, 
+  onDeletePhoto, 
+  onDownloadPhoto, 
+  isUploadedPhoto,
+  onLoadMore,
+  isLoading,
+  hasMore,
+  loadMoreRef
+}) => {
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  // Setup Intersection Observer untuk infinite scroll
+  useEffect(() => {
+    if (!onLoadMore || !loadMoreRef?.current || isLoading || !hasMore) return;
+
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !isLoading && hasMore) {
+          onLoadMore();
+        }
+      },
+      {
+        rootMargin: '200px', // Trigger load saat 200px dari bottom
+      }
+    );
+
+    observerRef.current.observe(loadMoreRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [onLoadMore, isLoading, hasMore, loadMoreRef]);
+
   if (photos.length === 0) {
     return (
       <div className="text-center py-20">
@@ -38,83 +83,112 @@ const Gallery: React.FC<GalleryProps> = ({ photos, onPhotoClick, onDeletePhoto, 
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {photos.map((photo) => {
-        const isUploaded = isUploadedPhoto ? isUploadedPhoto(photo) : false;
-        return (
-          <div
-            key={photo.id}
-            className="group relative rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            onClick={() => onPhotoClick(photo)}
-          >
-            <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-              <img
-                src={photo.src}
-                alt={photo.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-              />
-            </div>
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <h3 className="text-white font-semibold text-sm">{photo.title}</h3>
-                <p className="text-white/70 text-xs mt-1">{photo.category}</p>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {photos.map((photo, index) => {
+          const isUploaded = isUploadedPhoto ? isUploadedPhoto(photo) : false;
+          return (
+            <div
+              key={photo.id}
+              className="group relative rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
+              style={{ animationDelay: `${(index % 8) * 50}ms` }}
+              onClick={() => onPhotoClick(photo)}
+            >
+              <div className="aspect-[4/3] overflow-hidden bg-gray-100">
+                <img
+                  src={photo.src}
+                  alt={photo.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
               </div>
-            </div>
-            {/* Category badge */}
-            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <span className="px-2 py-1 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full text-xs font-medium">
-                {photo.category}
-              </span>
-            </div>
-            {/* Uploaded badge */}
-            {isUploaded && (
-              <div className="absolute top-3 left-3">
-                <span className="px-2 py-1 bg-purple-500/90 backdrop-blur-sm text-white rounded-full text-xs font-medium flex items-center gap-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Upload
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="text-white font-semibold text-sm">{photo.title}</h3>
+                  <p className="text-white/70 text-xs mt-1">{photo.category}</p>
+                </div>
+              </div>
+              {/* Category badge */}
+              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="px-2 py-1 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full text-xs font-medium">
+                  {photo.category}
                 </span>
               </div>
-            )}
-            {/* Action buttons - download & delete */}
-            <div className="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
-              {/* Download button */}
-              {onDownloadPhoto && (
-                <button
-                  onClick={(e) => handleDownload(e, photo)}
-                  className="w-8 h-8 bg-blue-500/90 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
-                  title="Download foto"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                </button>
+              {/* Uploaded badge */}
+              {isUploaded && (
+                <div className="absolute top-3 left-3">
+                  <span className="px-2 py-1 bg-purple-500/90 backdrop-blur-sm text-white rounded-full text-xs font-medium flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Upload
+                  </span>
+                </div>
               )}
-              {/* Delete button for uploaded photos */}
-              {isUploaded && onDeletePhoto && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (confirm('Hapus foto ini dari galeri?')) {
-                      onDeletePhoto(photo.id);
-                    }
-                  }}
-                  className="w-8 h-8 bg-red-500/90 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
-                  title="Hapus foto"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              )}
+              {/* Action buttons - download & delete */}
+              <div className="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                {/* Download button */}
+                {onDownloadPhoto && (
+                  <button
+                    onClick={(e) => handleDownload(e, photo)}
+                    className="w-8 h-8 bg-blue-500/90 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
+                    title="Download foto"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </button>
+                )}
+                {/* Delete button for uploaded photos */}
+                {isUploaded && onDeletePhoto && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Hapus foto ini dari galeri?')) {
+                        onDeletePhoto(photo.id);
+                      }
+                    }}
+                    className="w-8 h-8 bg-red-500/90 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
+                    title="Hapus foto"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+
+      {/* Loading indicator untuk infinite scroll */}
+      {onLoadMore && hasMore !== undefined && (
+        <div ref={loadMoreRef} className="mt-8">
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="relative">
+                <div className="w-12 h-12 border-4 border-purple-200 rounded-full"></div>
+                <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+              </div>
+              <p className="text-gray-500 font-medium mt-4">Memuat lebih banyak foto...</p>
+            </div>
+          )}
+          {!isLoading && !hasMore && photos.length > 0 && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="text-gray-500 font-medium">Semua foto telah ditampilkan</p>
+              <p className="text-gray-400 text-sm mt-1">Tidak ada foto lagi untuk dimuat</p>
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 };
 
