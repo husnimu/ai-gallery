@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Photo } from '../data/photos';
 import { downloadPhoto } from '../utils/download';
 
@@ -12,8 +12,12 @@ interface LightboxProps {
 }
 
 const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onDelete, onDownload }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (showDeleteConfirm) return; // Disable shortcuts saat dialog konfirmasi terbuka
+      
       if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowRight') onNext();
       if (e.key === 'ArrowLeft') onPrev();
@@ -28,7 +32,12 @@ const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onD
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, onNext, onPrev, photo, onDownload]);
+  }, [onClose, onNext, onPrev, photo, onDownload, showDeleteConfirm]);
+
+  // Reset showDeleteConfirm saat photo berubah
+  useEffect(() => {
+    setShowDeleteConfirm(false);
+  }, [photo]);
 
   if (!photo) return null;
 
@@ -39,6 +48,23 @@ const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onD
     } else {
       await downloadPhoto(photo);
     }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (onDelete) {
+      onDelete();
+    }
+    setShowDeleteConfirm(false);
+    onClose();
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
   };
 
   return (
@@ -65,16 +91,10 @@ const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onD
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
         </button>
-        {/* Delete button */}
+        {/* Delete button - selalu muncul jika onDelete ada */}
         {onDelete && (
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (confirm('Hapus foto ini dari galeri?')) {
-                onDelete();
-                onClose();
-              }
-            }}
+            onClick={handleDeleteClick}
             className="text-red-400 hover:text-red-300 transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2"
             title="Hapus foto"
           >
@@ -120,6 +140,41 @@ const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, onD
           </span>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">Hapus Foto?</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  Foto "{photo.title}" akan dihapus permanen
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleCancelDelete}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

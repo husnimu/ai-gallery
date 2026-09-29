@@ -59,8 +59,10 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
 - **Navigasi Tombol**: Tombol previous/next dengan visual feedback.
 - **Informasi Foto**: Menampilkan judul, deskripsi, dan kategori di bawah foto.
 - **Download dari Lightbox**: Tombol download tersedia untuk semua foto.
-- **Delete dari Lightbox**: Tombol hapus tersedia untuk foto yang diupload.
+- **Delete dari Lightbox**: Tombol hapus tersedia untuk **semua foto** (default dan upload) dengan dialog konfirmasi modern.
+- **Dialog Konfirmasi Hapus**: Dialog konfirmasi yang elegan dengan ikon peringatan, informasi nama foto, dan tombol Batal/Hapus.
 - **Click Outside to Close**: Klik area di luar foto untuk menutup lightbox.
+- **Keyboard Shortcuts Disabled saat Dialog**: Shortcut keyboard dinonaktifkan saat dialog konfirmasi terbuka untuk mencegah aksi tidak sengaja.
 
 ### 5. Sistem Download Foto
 - **Download Individual**: Tombol download di setiap foto (muncul saat hover).

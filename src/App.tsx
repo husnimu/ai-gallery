@@ -450,8 +450,16 @@ function App() {
         onClose={handleCloseLightbox}
         onNext={handleNext}
         onPrev={handlePrev}
-        onDelete={() => selectedPhoto && handleDeletePhoto(selectedPhoto.id)}
-        onDownload={() => selectedPhoto && handleDownloadPhoto(selectedPhoto)}
+        onDelete={() => {
+          if (selectedPhoto) {
+            handleDeletePhoto(selectedPhoto.id);
+          }
+        }}
+        onDownload={() => {
+          if (selectedPhoto) {
+            handleDownloadPhoto(selectedPhoto);
+          }
+        }}
       />
 
       {/* Upload Modal */}
