@@ -1,2 +1,432 @@
-# ai-gallery
-Aplikasi Galeri Web Simpel
+# GALERI·FOTO — Aplikasi Galeri Foto Web Modern & Interaktif
+
+> ⚡ **Dikembangkan dengan metode *Vibe Coding***: Proyek ini dirancang dan dibangun secara interaktif dan ekspresif berkolaborasi dengan AI, memadukan estetika visual modern dengan fungsionalitas galeri foto yang intuitif dan responsif.
+
+Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur upload drag & drop, filter kategori dinamis, lightbox interaktif dengan navigasi keyboard, pencarian real-time, riwayat aktivitas lengkap, serta kemampuan manajemen foto yang lengkap.
+
+---
+
+## ✨ Fitur Unggulan
+
+### 1. Desain Antarmuka Modern & Responsif
+- **Gradient Premium**: Desain visual elegan dengan gradient ungu-pink yang konsisten di seluruh aplikasi.
+- **Grid Layout Responsif**: Tata letak adaptif yang optimal di semua ukuran layar:
+  - 📱 Mobile: 1 kolom
+  - 📱 Tablet: 2 kolom
+  - 💻 Desktop: 3-4 kolom
+- **Hover Effects Interaktif**: Efek zoom halus dan overlay informasi saat hover pada foto.
+- **Smooth Animations**: Transisi halus untuk semua interaksi pengguna dengan CSS transitions.
+- **Fade-in Animation**: Animasi fade-in dengan delay bertahap saat foto baru dimuat untuk infinite scroll.
+- **Custom Scrollbar**: Scrollbar custom dengan warna tema yang konsisten.
+- **Sticky Header**: Header tetap di atas saat scroll untuk akses cepat ke fitur pencarian, riwayat, dan upload.
+
+### 2. Sistem Upload Foto Canggih
+- **Drag & Drop Interface**: Area drop zone intuitif dengan visual feedback saat drag aktif.
+- **Multi-file Upload**: Upload beberapa foto sekaligus dalam satu sesi.
+- **Preview Real-time**: Preview semua foto yang akan diupload sebelum konfirmasi.
+- **Form Metadata Lengkap**:
+  - Judul foto (auto-generate dari nama file jika kosong)
+  - Pilihan kategori (Alam, Arsitektur, Hewan, Makanan, Perjalanan)
+  - **Tambah Kategori Baru**: Buat kategori custom langsung dari modal upload
+  - Deskripsi opsional
+- **File Validation**: Filter otomatis untuk file gambar saja (PNG, JPG, WEBP).
+- **Upload Badge**: Foto yang diupload ditandai dengan badge ungu "Upload" di pojok kiri atas.
+- **Counter Badge**: Indikator jumlah foto yang telah diupload di tombol upload.
+
+### 3. Filter & Pencarian Dinamis
+- **Filter Kategori**: Kategori foto dengan tombol filter interaktif:
+  - 🌿 Alam
+  - 🏛️ Arsitektur
+  - 🐾 Hewan
+  - 🍽️ Makanan
+  - ✈️ Perjalanan
+  - 📸 Semua (tampilkan semua)
+  - **+ Kategori Custom** (ditambahkan oleh pengguna)
+- **Pencarian Real-time**: Input pencarian yang memfilter foto berdasarkan:
+  - Judul foto
+  - Kategori
+  - Deskripsi
+- **Live Counter**: Menampilkan jumlah foto yang sedang ditampilkan dengan info filter aktif.
+- **Empty State**: Tampilan informatif saat tidak ada foto yang cocok dengan filter.
+
+### 4. Lightbox Viewer Interaktif
+- **Full-screen Modal**: Tampilan foto dalam ukuran besar dengan backdrop blur.
+- **Navigasi Keyboard**:
+  - `←` (Arrow Left): Foto sebelumnya
+  - `→` (Arrow Right): Foto berikutnya
+  - `Esc`: Tutup lightbox
+  - `Ctrl+D`: Download foto
+- **Navigasi Tombol**: Tombol previous/next dengan visual feedback.
+- **Informasi Foto**: Menampilkan judul, deskripsi, dan kategori di bawah foto.
+- **Download dari Lightbox**: Tombol download tersedia untuk semua foto.
+- **Delete dari Lightbox**: Tombol hapus tersedia untuk **semua foto** (default dan upload) dengan dialog konfirmasi modern.
+- **Dialog Konfirmasi Hapus**: Dialog konfirmasi yang elegan dengan ikon peringatan, informasi nama foto, dan tombol Batal/Hapus.
+- **Click Outside to Close**: Klik area di luar foto untuk menutup lightbox.
+- **Keyboard Shortcuts Disabled saat Dialog**: Shortcut keyboard dinonaktifkan saat dialog konfirmasi terbuka untuk mencegah aksi tidak sengaja.
+
+### 5. Sistem Download Foto
+- **Download Individual**: Tombol download di setiap foto (muncul saat hover).
+- **Download dari Lightbox**: Download langsung dari mode lightbox.
+- **Download Semua**: Tombol "Download Semua" untuk mengunduh seluruh foto sekaligus.
+- **Download Terpilih**: Download hanya foto yang dipilih dalam mode multi-select.
+- **Keyboard Shortcut**: `Ctrl+D` saat di lightbox untuk download cepat.
+- **Batch Download**: Download multiple photos dengan delay otomatis untuk menghindari pemblokiran browser.
+
+### 6. Manajemen Foto & Multi-Select
+- **Hapus Semua Foto**: Tombol hapus tersedia untuk semua foto (default dan upload).
+- **Mode Multi-Select**: Klik tombol "Pilih Foto" untuk masuk ke mode seleksi.
+- **Checkbox Selection**: Setiap foto memiliki checkbox untuk dipilih/dibatalkan.
+- **Pilih Semua**: Tombol untuk memilih semua foto yang sedang ditampilkan.
+- **Hapus Terpilih**: Hapus hanya foto yang dipilih dalam mode multi-select.
+- **Konfirmasi Hapus**: Dialog konfirmasi modern sebelum menghapus foto (single, multiple, atau all).
+- **Hapus dari Lightbox**: Kemampuan menghapus foto langsung dari mode lightbox.
+- **Ring Indicator**: Foto yang terpilih memiliki ring ungu sebagai indikator visual.
+- **Floating Action Bar**: Action bar muncul di bawah saat mode multi-select aktif.
+
+### 7. Kategori/Tag Dinamis
+- **Tambah Kategori Baru**: Buat kategori custom langsung dari modal upload.
+- **Persistensi localStorage**: Kategori baru tersimpan dan tetap ada saat halaman di-refresh.
+- **Validasi Duplikasi**: Mencegah kategori dengan nama yang sama (case-insensitive).
+- **Filter Otomatis**: Filter bar otomatis terupdate saat kategori baru ditambahkan.
+- **Keyboard Shortcuts**: Enter untuk menambah kategori, Escape untuk batal.
+
+### 8. Riwayat Aktivitas (Activity Log)
+- **Logging Otomatis**: Setiap aktivitas upload, download, dan delete dicatat secara otomatis.
+- **Tombol Riwayat**: Ikon jam di header dengan badge jumlah aktivitas.
+- **Filter Berdasarkan Tipe**: Filter riwayat berdasarkan Upload, Download, atau Delete.
+- **Informasi Detail**: Setiap log menampilkan:
+  - Tipe aktivitas (upload/download/delete)
+  - Nama foto yang dioperasikan
+  - Kategori (untuk upload)
+  - Jumlah foto (untuk batch operations)
+  - Timestamp dengan format relatif ("Baru saja", "5 menit lalu", "2 jam lalu", dll)
+- **Hapus Log Individual**: Tombol hapus (X) muncul saat hover pada setiap log entry untuk menghapus log tertentu saja.
+- **Animasi Hapus Individual**: Efek animasi smooth saat menghapus log individual (fade out + scale + slide).
+- **Hapus Semua Riwayat**: Tombol "Hapus Semua" yang prominent dengan ikon tempat sampah di header modal.
+- **Dialog Konfirmasi**: Dialog konfirmasi modern dengan ikon peringatan, informasi jumlah log yang akan dihapus, dan tombol Batal/Hapus.
+- **Animasi Loading**: Overlay loading dengan spinner saat proses hapus semua berlangsung.
+- **Toast Notification**: Notifikasi sukses yang muncul setelah berhasil menghapus semua riwayat (auto-dismiss setelah 3 detik).
+- **Persistensi localStorage**: Riwayat tersimpan dan tetap ada saat halaman di-refresh.
+- **Batas Log**: Maksimal 100 log terbaru untuk performa optimal.
+
+### 9. Infinite Scroll
+- **Lazy Loading**: Foto dimuat secara bertahap saat user scroll ke bawah, meningkatkan performa untuk galeri besar.
+- **Intersection Observer API**: Menggunakan Intersection Observer modern untuk deteksi scroll yang efisien (tanpa scroll event listener).
+- **Batch Loading**: Memuat 8 foto per batch untuk keseimbangan antara performa dan UX.
+- **Loading Indicator**: Spinner animasi dengan teks "Memuat lebih banyak foto..." saat proses loading.
+- **End-of-List Indicator**: Pesan informatif "Semua foto telah ditampilkan" saat semua foto sudah dimuat.
+- **Fade-in Animation**: Animasi fade-in dengan delay bertahap (staggered) untuk foto yang baru dimuat.
+- **Smart Reset**: Display count otomatis reset saat filter atau pencarian berubah.
+- **Counter Dinamis**: Menampilkan "Menampilkan X dari Y foto" untuk tracking progress.
+- **Root Margin**: Trigger load saat 200px dari bottom untuk preload yang smooth.
+- **Performa Optimal**: Hanya merender foto yang terlihat, mengurangi DOM nodes dan meningkatkan kecepatan.
+
+---
+
+## 🎨 Teknologi & Stack
+
+### Frontend
+- **React 18** - Library UI untuk membangun antarmuka pengguna
+- **TypeScript** - Type safety dan developer experience yang lebih baik
+- **Vite** - Build tool dan development server yang cepat
+- **Tailwind CSS** - Utility-first CSS framework untuk styling
+
+### Fitur Teknis
+- **Responsive Design**: Mobile-first approach dengan breakpoint Tailwind
+- **Component-based Architecture**: Komponen modular dan reusable
+- **State Management**: React hooks (useState, useMemo, useCallback)
+- **Custom Hooks**: 
+  - `useCategories`: Manajemen kategori dinamis dengan persistensi localStorage
+  - `useActivityLog`: Logging aktivitas dengan fitur hapus individual (`removeLog`), hapus semua (`clearLogs`), dan notifikasi toast
+  - `useInfiniteScroll`: Hook untuk infinite scroll dengan Intersection Observer
+- **Infinite Scroll**: Implementasi lazy loading dengan Intersection Observer API untuk performa optimal
+- **Image Optimization**: Lazy loading untuk performa optimal
+- **URL Object Management**: Proper cleanup untuk object URLs dari file upload
+- **Keyboard Navigation**: Full keyboard support untuk aksesibilitas
+- **LocalStorage Persistence**: Data kategori dan riwayat aktivitas tersimpan persisten
+
+---
+
+## 🚀 Cara Menjalankan
+
+### Prasyarat
+- Node.js (versi 16 atau lebih baru)
+- npm atau yarn
+
+### Instalasi & Development
+
+1. **Clone atau download repository**
+```bash
+cd galeri-foto
+```
+
+2. **Install dependensi**
+```bash
+npm install
+```
+
+3. **Jalankan development server**
+```bash
+npm run dev
+```
+
+Aplikasi akan berjalan di:
+```
+http://localhost:5173
+```
+
+### Build untuk Production
+
+```bash
+npm run build
+```
+
+File hasil build akan tersedia di folder `dist/`.
+
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+---
+
+## 📁 Struktur Direktori
+
+```
+galeri-foto/
+├── public/                      # Aset statis
+├── src/
+│   ├── components/
+│   │   ├── Header.tsx              # Header dengan search, history & tombol upload
+│   │   ├── Gallery.tsx             # Grid gallery dengan infinite scroll, multi-select & action buttons
+│   │   ├── CategoryFilter.tsx      # Filter kategori interaktif
+│   │   ├── Lightbox.tsx            # Modal lightbox viewer dengan download & delete
+│   │   ├── UploadModal.tsx         # Modal upload dengan drag & drop & tambah kategori
+│   │   ├── ActivityLogModal.tsx    # Modal riwayat aktivitas dengan filter & hapus
+│   │   ├── SelectionActionBar.tsx  # Floating action bar untuk multi-select operations
+│   │   └── LoadingIndicator.tsx    # Komponen loading indicator untuk infinite scroll
+│   ├── hooks/
+│   │   ├── useCategories.ts        # Custom hook untuk manajemen kategori dinamis
+│   │   ├── useActivityLog.ts       # Custom hook untuk logging aktivitas
+│   │   └── useInfiniteScroll.ts    # Custom hook untuk infinite scroll logic
+│   ├── utils/
+│   │   └── download.ts             # Utility functions untuk download foto
+│   ├── data/
+│   │   └── photos.ts               # Data foto default & tipe TypeScript
+│   ├── App.tsx                     # Komponen utama dengan infinite scroll & multi-select
+│   ├── main.tsx                    # Entry point React
+│   └── index.css                   # Global styles, Tailwind imports & custom animations
+├── index.html                      # HTML template
+├── package.json                    # Dependensi & scripts
+├── tsconfig.json                   # Konfigurasi TypeScript
+├── vite.config.ts                  # Konfigurasi Vite
+├── tailwind.config.js              # Konfigurasi Tailwind CSS
+└── README.md                       # Dokumentasi proyek
+```
+
+---
+
+## 🎯 Panduan Penggunaan
+
+### Upload Foto
+1. Klik tombol **"Upload"** di header (ikon +)
+2. Drag & drop foto ke area upload, atau klik untuk memilih file
+3. Pilih beberapa foto sekaligus jika diperlukan
+4. Isi meta judul, kategori, dan deskripsi
+5. **Tambah Kategori Baru** (opsional):
+   - Pilih "+ Tambah Kategori Baru..." dari dropdown
+   - Ketik nama kategori baru
+   - Tekan Enter atau klik "Tambah"
+6. Klik tombol **"Upload"** untuk menambahkan ke galeri
+
+### Filter & Pencarian
+1. Gunakan tombol kategori untuk memfilter foto berdasarkan kategori
+2. Ketik di kolom pencarian untuk mencari foto berdasarkan judul, kategori, atau deskripsi
+3. Filter dan pencarian dapat dikombinasikan
+
+### Melihat Foto
+1. Klik foto mana saja untuk membuka lightbox
+2. Gunakan tombol panah atau keyboard untuk navigasi
+3. Tekan `Esc` atau klik di luar foto untuk menutup
+
+### Download Foto
+- **Individual**: Hover pada foto → klik tombol download (ikon biru)
+- **Dari Lightbox**: Klik tombol download di pojok kanan atas atau tekan `Ctrl+D`
+- **Semua**: Klik tombol "Download Semua" di atas galeri
+
+### Menghapus Foto
+- **Hapus Individual**:
+  1. Hover pada foto
+  2. Klik tombol hapus (ikon tempat sampah merah) di pojok kanan bawah
+  3. Foto langsung dihapus (semua foto bisa dihapus, bukan hanya yang diupload)
+
+- **Hapus Massal (Multi-Select)**:
+  1. Klik tombol "Pilih Foto" di atas galeri
+  2. Klik foto-foto yang ingin dihapus (atau klik "Pilih Semua")
+  3. Klik "Hapus Terpilih" di action bar yang muncul
+  4. Konfirmasi penghapusan di dialog
+
+- **Hapus Semua Foto**:
+  1. Masuk ke mode multi-select
+  2. Klik "Hapus Semua" di action bar
+  3. Konfirmasi penghapusan di dialog
+
+### Melihat Riwayat Aktivitas
+1. Klik ikon jam di header (dengan badge jumlah aktivitas)
+2. Filter berdasarkan tipe: Semua, Upload, Download, atau Delete
+3. Lihat detail setiap aktivitas dengan timestamp
+4. **Hapus Log Individual**: Hover pada log tertentu → klik tombol X untuk menghapus log tersebut
+5. **Hapus Semua Riwayat**:
+   - Klik tombol merah "Hapus Semua" di pojok kanan atas modal
+   - Dialog konfirmasi akan muncul dengan informasi jumlah log yang akan dihapus
+   - Klik "Ya, Hapus Semua" untuk mengkonfirmasi atau "Batal" untuk membatalkan
+   - Animasi loading akan ditampilkan saat proses penghapusan
+   - Toast notification muncul setelah berhasil menghapus semua riwayat
+
+### Infinite Scroll (Gulir Tak Terbatas)
+1. Galeri menampilkan **8 foto pertama** saat halaman dimuat
+2. Scroll ke bawah untuk memuat lebih banyak foto secara otomatis
+3. **Loading indicator** (spinner) muncul saat foto sedang dimuat
+4. Foto baru muncul dengan **animasi fade-in** yang smooth
+5. Counter "Menampilkan X dari Y foto" menunjukkan progress
+6. Saat semua foto sudah dimuat, pesan "Semua foto telah ditampilkan" muncul
+7. Filter atau pencarian akan **reset** infinite scroll ke foto pertama
+
+---
+
+## 🎨 Fitur Desain
+
+### Color Palette
+- **Primary**: Purple 500 (`#a855f7`) → Pink 500 (`#ec4899`)
+- **Background**: Gray 50 (`#f9fafb`)
+- **Text**: Gray 800 (`#1f2937`)
+- **Accent**: Purple gradient untuk CTA buttons
+- **Activity Colors**:
+  - Upload: Green (`#10b981`)
+  - Download: Blue (`#3b82f6`)
+  - Delete: Red (`#ef4444`)
+
+### Typography
+- **Font Family**: System fonts (sans-serif)
+- **Headings**: Bold, Gray 800
+- **Body**: Regular, Gray 600-700
+
+### Spacing & Layout
+- **Max Width**: 7xl (80rem / 1280px)
+- **Padding**: Responsive (4px → 6px → 8px)
+- **Grid Gap**: 16px (4px spacing unit)
+- **Border Radius**: 12px untuk cards, 9999px untuk buttons
+
+---
+
+## 📱 Responsivitas
+
+| Breakpoint | Layout | Fitur |
+| :--- | :--- | :--- |
+| **Mobile** (< 640px) | 1 kolom grid | Header compact, search full-width |
+| **Tablet** (640px - 1024px) | 2 kolom grid | Search & upload button visible |
+| **Desktop** (> 1024px) | 3-4 kolom grid | Full header dengan semua fitur |
+
+---
+
+## 🔧 Customization
+
+### Menambah Kategori Default
+Edit file `src/hooks/useCategories.ts`:
+```typescript
+const DEFAULT_CATEGORIES = ['Alam', 'Arsitektur', 'Hewan', 'Makanan', 'Perjalanan', 'Kategori Baru'];
+```
+
+### Mengubah Warna Tema
+Edit file `src/index.css` atau gunakan Tailwind classes di komponen:
+```typescript
+// Contoh mengubah gradient button
+className="bg-gradient-to-r from-blue-500 to-cyan-500"
+```
+
+### Mengubah Batas Log
+Edit file `src/hooks/useActivityLog.ts`:
+```typescript
+const MAX_LOGS = 100; // Ubah sesuai kebutuhan
+```
+
+---
+
+## 🌟 Fitur yang Dapat Ditambahkan
+
+Ide pengembangan untuk versi selanjutnya:
+- [ ] Integrasi dengan API penyimpanan cloud (AWS S3, Cloudinary)
+- [ ] Fitur tagging dan multiple categories per foto
+- [ ] Slideshow mode dengan auto-play
+- [ ] Download foto sebagai ZIP (batch download)
+- [ ] Fitur like/favorite dengan heart animation
+- [ ] Share ke media sosial
+- [ ] EXIF data viewer
+- [ ] Image compression sebelum upload
+- [ ] Dark mode toggle
+- [ ] Infinite scroll atau pagination
+- [ ] Sort by date, name, or category
+- [ ] Watermark otomatis untuk foto upload
+- [ ] Export riwayat aktivitas ke CSV/JSON
+- [ ] Notifikasi real-time untuk aktivitas
+- [ ] Statistik penggunaan (jumlah upload/download/delete)
+- [ ] Undo/Redo untuk operasi hapus
+- [ ] Search dalam riwayat aktivitas
+
+---
+
+## 🎓 Pembelajaran & Konsep
+
+Proyek ini mendemonstrasikan:
+- **React Hooks**: useState, useMemo, useCallback untuk state management
+- **Custom Hooks**: useCategories, useActivityLog, useInfiniteScroll untuk logic reusable
+- **TypeScript**: Type safety untuk props, state, dan data structures
+- **Component Architecture**: Pemisahan concern dalam komponen modular
+- **Event Handling**: Drag & drop, keyboard events, click events, event.stopPropagation()
+- **File API**: FileReader, URL.createObjectURL, blob handling
+- **LocalStorage API**: Persistensi data kategori dan riwayat aktivitas
+- **Intersection Observer API**: Implementasi infinite scroll yang efisien tanpa scroll event listener
+- **Set Data Structure**: Penggunaan Set untuk multi-select yang efisien (O(1) lookup)
+- **Responsive Design**: Mobile-first dengan Tailwind breakpoints
+- **Accessibility**: Keyboard navigation, semantic HTML
+- **Performance**: Lazy loading, memoization, cleanup effects, infinite scroll
+- **CSS Animations**: Custom keyframe animations untuk fade-in, slide-in, slide-up, dan zoom effects
+- **State Management**: Complex state untuk multi-select mode, confirmation dialogs, dan mass operations
+
+---
+
+## 📄 Lisensi
+
+Proyek ini dibuat untuk tujuan edukasi dan demonstrasi. Bebas digunakan dan dimodifikasi.
+
+---
+
+## 🤝 Kontribusi
+
+Kontribusi selalu diterima! Silakan fork repository dan buat pull request dengan perubahan Anda.
+
+---
+
+## 👨‍💻 Developer
+
+Dikembangkan dengan ❤️ menggunakan **React**, **TypeScript**, dan **Tailwind CSS**.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Picsum Photos** - Penyedia gambar placeholder berkualitas tinggi
+- **Tailwind CSS** - Framework CSS utility-first yang luar biasa
+- **React Team** - Library UI yang powerful dan fleksibel
+- **Vite** - Build tool modern yang super cepat
+
+---
+
+<div align="center">
+
+**Dibuat dengan ⚡ Vibe Coding & ❤️ Passion**
+
+[⬆ kembali ke atas](#galerifoto--aplikasi-galeri-foto-web-modern--interaktif)
+
+</div>
