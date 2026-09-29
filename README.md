@@ -66,14 +66,20 @@ Aplikasi galeri foto berbasis web dengan antarmuka modern dan responsif, fitur u
 - **Download Individual**: Tombol download di setiap foto (muncul saat hover).
 - **Download dari Lightbox**: Download langsung dari mode lightbox.
 - **Download Semua**: Tombol "Download Semua" untuk mengunduh seluruh foto sekaligus.
+- **Download Terpilih**: Download hanya foto yang dipilih dalam mode multi-select.
 - **Keyboard Shortcut**: `Ctrl+D` saat di lightbox untuk download cepat.
 - **Batch Download**: Download multiple photos dengan delay otomatis untuk menghindari pemblokiran browser.
 
-### 6. Manajemen Foto
-- **Hapus Foto Upload**: Tombol hapus (ikon tempat sampah) muncul saat hover pada foto yang diupload.
-- **Konfirmasi Hapus**: Dialog konfirmasi sebelum menghapus foto untuk mencegah aksi tidak sengaja.
+### 6. Manajemen Foto & Multi-Select
+- **Hapus Semua Foto**: Tombol hapus tersedia untuk semua foto (default dan upload).
+- **Mode Multi-Select**: Klik tombol "Pilih Foto" untuk masuk ke mode seleksi.
+- **Checkbox Selection**: Setiap foto memiliki checkbox untuk dipilih/dibatalkan.
+- **Pilih Semua**: Tombol untuk memilih semua foto yang sedang ditampilkan.
+- **Hapus Terpilih**: Hapus hanya foto yang dipilih dalam mode multi-select.
+- **Konfirmasi Hapus**: Dialog konfirmasi modern sebelum menghapus foto (single, multiple, atau all).
 - **Hapus dari Lightbox**: Kemampuan menghapus foto langsung dari mode lightbox.
-- **Pemisahan Foto**: Foto default dan foto upload dikelola secara terpisah.
+- **Ring Indicator**: Foto yang terpilih memiliki ring ungu sebagai indikator visual.
+- **Floating Action Bar**: Action bar muncul di bawah saat mode multi-select aktif.
 
 ### 7. Kategori/Tag Dinamis
 - **Tambah Kategori Baru**: Buat kategori custom langsung dari modal upload.
@@ -190,30 +196,31 @@ galeri-foto/
 ├── public/                      # Aset statis
 ├── src/
 │   ├── components/
-│   │   ├── Header.tsx          # Header dengan search, history & tombol upload
-│   │   ├── Gallery.tsx         # Grid gallery dengan infinite scroll & action buttons
-│   │   ├── CategoryFilter.tsx  # Filter kategori interaktif
-│   │   ├── Lightbox.tsx        # Modal lightbox viewer dengan download & delete
-│   │   ├── UploadModal.tsx     # Modal upload dengan drag & drop & tambah kategori
-│   │   ├── ActivityLogModal.tsx # Modal riwayat aktivitas dengan filter & hapus
-│   │   └── LoadingIndicator.tsx # Komponen loading indicator untuk infinite scroll
+│   │   ├── Header.tsx              # Header dengan search, history & tombol upload
+│   │   ├── Gallery.tsx             # Grid gallery dengan infinite scroll, multi-select & action buttons
+│   │   ├── CategoryFilter.tsx      # Filter kategori interaktif
+│   │   ├── Lightbox.tsx            # Modal lightbox viewer dengan download & delete
+│   │   ├── UploadModal.tsx         # Modal upload dengan drag & drop & tambah kategori
+│   │   ├── ActivityLogModal.tsx    # Modal riwayat aktivitas dengan filter & hapus
+│   │   ├── SelectionActionBar.tsx  # Floating action bar untuk multi-select operations
+│   │   └── LoadingIndicator.tsx    # Komponen loading indicator untuk infinite scroll
 │   ├── hooks/
-│   │   ├── useCategories.ts    # Custom hook untuk manajemen kategori dinamis
-│   │   ├── useActivityLog.ts   # Custom hook untuk logging aktivitas
-│   │   └── useInfiniteScroll.ts # Custom hook untuk infinite scroll logic
+│   │   ├── useCategories.ts        # Custom hook untuk manajemen kategori dinamis
+│   │   ├── useActivityLog.ts       # Custom hook untuk logging aktivitas
+│   │   └── useInfiniteScroll.ts    # Custom hook untuk infinite scroll logic
 │   ├── utils/
-│   │   └── download.ts         # Utility functions untuk download foto
+│   │   └── download.ts             # Utility functions untuk download foto
 │   ├── data/
-│   │   └── photos.ts           # Data foto default & tipe TypeScript
-│   ├── App.tsx                 # Komponen utama aplikasi dengan infinite scroll
-│   ├── main.tsx                # Entry point React
-│   └── index.css               # Global styles, Tailwind imports & custom animations
-├── index.html                  # HTML template
-├── package.json                # Dependensi & scripts
-├── tsconfig.json               # Konfigurasi TypeScript
-├── vite.config.ts              # Konfigurasi Vite
-├── tailwind.config.js          # Konfigurasi Tailwind CSS
-└── README.md                   # Dokumentasi proyek
+│   │   └── photos.ts               # Data foto default & tipe TypeScript
+│   ├── App.tsx                     # Komponen utama dengan infinite scroll & multi-select
+│   ├── main.tsx                    # Entry point React
+│   └── index.css                   # Global styles, Tailwind imports & custom animations
+├── index.html                      # HTML template
+├── package.json                    # Dependensi & scripts
+├── tsconfig.json                   # Konfigurasi TypeScript
+├── vite.config.ts                  # Konfigurasi Vite
+├── tailwind.config.js              # Konfigurasi Tailwind CSS
+└── README.md                       # Dokumentasi proyek
 ```
 
 ---
@@ -246,10 +253,22 @@ galeri-foto/
 - **Dari Lightbox**: Klik tombol download di pojok kanan atas atau tekan `Ctrl+D`
 - **Semua**: Klik tombol "Download Semua" di atas galeri
 
-### Menghapus Foto Upload
-1. Hover pada foto yang diupload
-2. Klik tombol hapus (ikon tempat sampah) di pojok kanan bawah
-3. Konfirmasi penghapusan
+### Menghapus Foto
+- **Hapus Individual**:
+  1. Hover pada foto
+  2. Klik tombol hapus (ikon tempat sampah merah) di pojok kanan bawah
+  3. Foto langsung dihapus (semua foto bisa dihapus, bukan hanya yang diupload)
+
+- **Hapus Massal (Multi-Select)**:
+  1. Klik tombol "Pilih Foto" di atas galeri
+  2. Klik foto-foto yang ingin dihapus (atau klik "Pilih Semua")
+  3. Klik "Hapus Terpilih" di action bar yang muncul
+  4. Konfirmasi penghapusan di dialog
+
+- **Hapus Semua Foto**:
+  1. Masuk ke mode multi-select
+  2. Klik "Hapus Semua" di action bar
+  3. Konfirmasi penghapusan di dialog
 
 ### Melihat Riwayat Aktivitas
 1. Klik ikon jam di header (dengan badge jumlah aktivitas)
@@ -362,14 +381,16 @@ Proyek ini mendemonstrasikan:
 - **Custom Hooks**: useCategories, useActivityLog, useInfiniteScroll untuk logic reusable
 - **TypeScript**: Type safety untuk props, state, dan data structures
 - **Component Architecture**: Pemisahan concern dalam komponen modular
-- **Event Handling**: Drag & drop, keyboard events, click events
+- **Event Handling**: Drag & drop, keyboard events, click events, event.stopPropagation()
 - **File API**: FileReader, URL.createObjectURL, blob handling
 - **LocalStorage API**: Persistensi data kategori dan riwayat aktivitas
 - **Intersection Observer API**: Implementasi infinite scroll yang efisien tanpa scroll event listener
+- **Set Data Structure**: Penggunaan Set untuk multi-select yang efisien (O(1) lookup)
 - **Responsive Design**: Mobile-first dengan Tailwind breakpoints
 - **Accessibility**: Keyboard navigation, semantic HTML
 - **Performance**: Lazy loading, memoization, cleanup effects, infinite scroll
-- **CSS Animations**: Custom keyframe animations untuk fade-in, slide-in, dan zoom effects
+- **CSS Animations**: Custom keyframe animations untuk fade-in, slide-in, slide-up, dan zoom effects
+- **State Management**: Complex state untuk multi-select mode, confirmation dialogs, dan mass operations
 
 ---
 

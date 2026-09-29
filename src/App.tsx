@@ -5,6 +5,7 @@ import Lightbox from './components/Lightbox';
 import CategoryFilter from './components/CategoryFilter';
 import UploadModal, { UploadedFile } from './components/UploadModal';
 import ActivityLogModal from './components/ActivityLogModal';
+import SelectionActionBar from './components/SelectionActionBar';
 import { photos as defaultPhotos, Photo } from './data/photos';
 import { downloadMultiplePhotos, downloadPhoto } from './utils/download';
 import { useCategories } from './hooks/useCategories';
@@ -19,6 +20,15 @@ function App() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<Photo[]>([]);
+  const [deletedDefaultPhotoIds, setDeletedDefaultPhotoIds] = useState<Set<number>>(new Set());
+  
+  // Selection mode states
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedPhotos, setSelectedPhotos] = useState<Set<number>>(new Set());
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{
+    type: 'single' | 'multiple' | 'all';
+    photos?: Photo[];
+  } | null>(null);
   
   // Infinite scroll states
   const ITEMS_PER_PAGE = 8;
@@ -26,10 +36,11 @@ function App() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  // Gabungkan foto default dengan foto yang diupload
+  // Gabungkan foto default dengan foto yang diupload (kecuali yang dihapus)
   const allPhotos = useMemo(() => {
-    return [...uploadedPhotos, ...defaultPhotos];
-  }, [uploadedPhotos]);
+    const defaultPhotosFiltered = defaultPhotos.filter(p => !deletedDefaultPhotoIds.has(p.id));
+    return [...uploadedPhotos, ...defaultPhotosFiltered];
+  }, [uploadedPhotos, deletedDefaultPhotoIds]);
 
   const filteredPhotos = useMemo(() => {
     return allPhotos.filter((photo) => {
@@ -60,7 +71,6 @@ function App() {
     if (isLoadingMore || !hasMorePhotos) return;
     
     setIsLoadingMore(true);
-    // Simulasi delay loading (bisa dihapus jika tidak perlu)
     setTimeout(() => {
       setDisplayCount(prev => prev + ITEMS_PER_PAGE);
       setIsLoadingMore(false);
@@ -91,8 +101,10 @@ function App() {
   }, [loadMore, isLoadingMore, hasMorePhotos]);
 
   const handlePhotoClick = useCallback((photo: Photo) => {
-    setSelectedPhoto(photo);
-  }, []);
+    if (!selectionMode) {
+      setSelectedPhoto(photo);
+    }
+  }, [selectionMode]);
 
   const handleCloseLightbox = useCallback(() => {
     setSelectedPhoto(null);
@@ -122,7 +134,6 @@ function App() {
     }));
     setUploadedPhotos((prev) => [...newPhotos, ...prev]);
     
-    // Log activity
     if (files.length === 1) {
       logUpload(files[0].title, files[0].category);
     } else {
@@ -130,23 +141,36 @@ function App() {
     }
   }, [logUpload]);
 
+  // Delete single photo (semua foto bisa dihapus)
   const handleDeletePhoto = useCallback((photoId: number) => {
-    const photo = uploadedPhotos.find(p => p.id === photoId);
-    setUploadedPhotos((prev) => prev.filter((p) => p.id !== photoId));
+    const photo = allPhotos.find(p => p.id === photoId);
+    if (!photo) return;
+
+    // Cek apakah foto default atau upload
+    const isDefault = defaultPhotos.some(p => p.id === photoId);
+    
+    if (isDefault) {
+      setDeletedDefaultPhotoIds(prev => new Set(prev).add(photoId));
+    } else {
+      setUploadedPhotos((prev) => prev.filter((p) => p.id !== photoId));
+    }
+
     if (selectedPhoto?.id === photoId) {
       setSelectedPhoto(null);
     }
+
+    // Remove from selection if selected
+    setSelectedPhotos(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(photoId);
+      return newSet;
+    });
     
-    // Log activity
-    if (photo) {
-      logDelete(photo.title);
-    }
-  }, [selectedPhoto, uploadedPhotos, logDelete]);
+    logDelete(photo.title);
+  }, [allPhotos, selectedPhoto, logDelete]);
 
   const handleDownloadPhoto = useCallback(async (photo: Photo) => {
     await downloadPhoto(photo);
-    
-    // Log activity
     logDownload(photo.title);
   }, [logDownload]);
 
@@ -154,7 +178,6 @@ function App() {
     if (filteredPhotos.length === 0) return;
     await downloadMultiplePhotos(filteredPhotos);
     
-    // Log activity
     if (filteredPhotos.length === 1) {
       logDownload(filteredPhotos[0].title);
     } else {
@@ -166,6 +189,98 @@ function App() {
     return uploadedPhotos.some((p) => p.id === photo.id);
   }, [uploadedPhotos]);
 
+  // Selection mode handlers
+  const handleToggleSelect = useCallback((photoId: number) => {
+    setSelectedPhotos(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(photoId)) {
+        newSet.delete(photoId);
+      } else {
+        newSet.add(photoId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    setSelectedPhotos(new Set(filteredPhotos.map(p => p.id)));
+  }, [filteredPhotos]);
+
+  const handleDeselectAll = useCallback(() => {
+    setSelectedPhotos(new Set());
+  }, []);
+
+  const handleExitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedPhotos(new Set());
+  }, []);
+
+  // Mass operations
+  const handleDownloadSelected = useCallback(async () => {
+    const photosToDownload = filteredPhotos.filter(p => selectedPhotos.has(p.id));
+    if (photosToDownload.length === 0) return;
+    
+    await downloadMultiplePhotos(photosToDownload);
+    
+    if (photosToDownload.length === 1) {
+      logDownload(photosToDownload[0].title);
+    } else {
+      logDownload(`${photosToDownload.length} foto`, undefined, photosToDownload.length);
+    }
+  }, [filteredPhotos, selectedPhotos, logDownload]);
+
+  const handleDeleteSelected = useCallback(() => {
+    const photosToDelete = filteredPhotos.filter(p => selectedPhotos.has(p.id));
+    if (photosToDelete.length === 0) return;
+    
+    setShowDeleteConfirm({
+      type: 'multiple',
+      photos: photosToDelete,
+    });
+  }, [filteredPhotos, selectedPhotos]);
+
+  const handleDeleteAll = useCallback(() => {
+    if (filteredPhotos.length === 0) return;
+    
+    setShowDeleteConfirm({
+      type: 'all',
+      photos: filteredPhotos,
+    });
+  }, [filteredPhotos]);
+
+  const confirmDelete = useCallback(() => {
+    if (!showDeleteConfirm) return;
+
+    if (showDeleteConfirm.type === 'all' && showDeleteConfirm.photos) {
+      // Hapus semua foto
+      showDeleteConfirm.photos.forEach(photo => {
+        const isDefault = defaultPhotos.some(p => p.id === photo.id);
+        if (isDefault) {
+          setDeletedDefaultPhotoIds(prev => new Set(prev).add(photo.id));
+        } else {
+          setUploadedPhotos(prev => prev.filter(p => p.id !== photo.id));
+        }
+        logDelete(photo.title);
+      });
+    } else if (showDeleteConfirm.type === 'multiple' && showDeleteConfirm.photos) {
+      // Hapus foto terpilih
+      showDeleteConfirm.photos.forEach(photo => {
+        const isDefault = defaultPhotos.some(p => p.id === photo.id);
+        if (isDefault) {
+          setDeletedDefaultPhotoIds(prev => new Set(prev).add(photo.id));
+        } else {
+          setUploadedPhotos(prev => prev.filter(p => p.id !== photo.id));
+        }
+        logDelete(photo.title);
+      });
+    }
+
+    // Clear selection
+    setSelectedPhotos(new Set());
+    setSelectionMode(false);
+    setShowDeleteConfirm(null);
+  }, [showDeleteConfirm, logDelete]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header
@@ -176,7 +291,7 @@ function App() {
         activityCount={logs.length}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32">
         {/* Hero section */}
         <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">
@@ -189,7 +304,7 @@ function App() {
           </p>
         </div>
 
-        {/* Category Filter - hanya tampilkan jika ada foto */}
+        {/* Category Filter */}
         {allPhotos.length > 0 && (
           <div className="mb-8">
             <CategoryFilter
@@ -215,6 +330,18 @@ function App() {
                   ✨ {uploadedPhotos.length} foto diupload
                 </p>
               )}
+              {/* Selection mode toggle */}
+              {!selectionMode && (
+                <button
+                  onClick={() => setSelectionMode(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-full text-sm font-medium transition-all shadow-md hover:shadow-lg"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Pilih Foto</span>
+                </button>
+              )}
               <button
                 onClick={handleDownloadAll}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-all shadow-md hover:shadow-lg"
@@ -239,8 +366,64 @@ function App() {
           isLoading={isLoadingMore}
           hasMore={hasMorePhotos}
           loadMoreRef={loadMoreRef}
+          selectionMode={selectionMode}
+          selectedPhotos={selectedPhotos}
+          onToggleSelect={handleToggleSelect}
         />
       </main>
+
+      {/* Selection Action Bar */}
+      {selectionMode && (
+        <SelectionActionBar
+          selectedCount={selectedPhotos.size}
+          totalCount={filteredPhotos.length}
+          onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
+          onDownloadSelected={handleDownloadSelected}
+          onDeleteSelected={handleDeleteSelected}
+          onDeleteAll={handleDeleteAll}
+          onExitSelectionMode={handleExitSelectionMode}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">
+                  {showDeleteConfirm.type === 'all' ? 'Hapus Semua Foto?' : 'Hapus Foto Terpilih?'}
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {showDeleteConfirm.type === 'all' 
+                    ? `${showDeleteConfirm.photos?.length || 0} foto akan dihapus permanen`
+                    : `${showDeleteConfirm.photos?.length || 0} foto terpilih akan dihapus permanen`}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(null)}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-100 mt-16">
@@ -267,7 +450,7 @@ function App() {
         onClose={handleCloseLightbox}
         onNext={handleNext}
         onPrev={handlePrev}
-        onDelete={selectedPhoto && isUploadedPhoto(selectedPhoto) ? () => handleDeletePhoto(selectedPhoto.id) : undefined}
+        onDelete={() => selectedPhoto && handleDeletePhoto(selectedPhoto.id)}
         onDownload={() => selectedPhoto && handleDownloadPhoto(selectedPhoto)}
       />
 
